@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+/* Identidade visual extraída do site oficial da CCB
+   (congregacaocristanobrasil.org.br). Mudar aqui muda o portal inteiro. */
+@theme {
+  --color-azul: #033d60;
+  --color-azul-escuro: #0c1e3f;
+  --color-azul-link: #0056b3;
+  --color-cinza: #d4d9e2;
+  --color-texto: #645f77;
+  --color-fundo: #f4f5f8;
+  --color-superficie: #ffffff;
+  --color-vermelho: #ee1d23;
+  --color-verde: #2aba66;
+
+  --font-sans: Verdana, Geneva, Tahoma, sans-serif;
+  --font-marca: Georgia, "Times New Roman", serif;
+
+  --radius-portal: 6px;
+  --shadow-portal: 0 5px 15px 0 rgb(0 0 0 / 0.09);
+}
+
+@layer base {
+  html {
+    font-family: var(--font-sans);
+  }
+
+  body {
+    background: var(--color-fundo);
+    color: var(--color-texto);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: var(--color-azul);
+    font-weight: bold;
+  }
+
+  a {
+    color: var(--color-azul);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--color-azul-link);
+    text-decoration: underline;
+  }
+
+  ::selection {
+    background: var(--color-cinza);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-azul-link);
+    outline-offset: 2px;
+  }
+}
