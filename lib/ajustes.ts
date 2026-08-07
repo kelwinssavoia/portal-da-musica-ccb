@@ -1,38 +1,33 @@
+import { clientePublico } from "@/lib/supabase/publico";
+import { supabaseConfigurado } from "@/lib/supabase/config";
+
 /**
  * Ajustes do portal (textos institucionais e opções gerais).
  *
- * Fase 1: valores vêm daqui. Na fase 2 esta função passa a ler a tabela
- * `ajustes` do Supabase — a assinatura já é assíncrona justamente para que a
- * troca não exija mexer em nenhuma tela.
+ * Vêm da tabela `ajustes`. Sem Supabase configurado — ou se a consulta falhar —
+ * caem nos padrões abaixo, para que o portal nunca fique em branco.
  */
 
 export type Ajustes = {
-  /** Faixa institucional do topo. */
   instituicao: string;
-  /** Nome da região. Aparece na faixa e no rodapé. */
   regiao: string;
-  /** Título grande do cabeçalho. */
   titulo: string;
-  /** Linha abaixo do título. */
   subtitulo: string;
-  /** Primeira linha do rodapé. */
   localidade: string;
-  /** Contato do rodapé. Vazio = não aparece. */
+  /** Vazio = não aparece no rodapé. */
   contato: string;
-  /** Texto de apresentação da tela de Início. */
   heroTexto: string;
-  /** Nota final do rodapé. */
   rodapeNota: string;
-  /** Se o portal pode aparecer em buscadores. Ver docs/ARQUITETURA.md §8.1. */
+  /** O portal pode aparecer em buscadores. Ver docs/ARQUITETURA.md §8.1. */
   indexavel: boolean;
 };
 
 const PADRAO: Ajustes = {
   instituicao: "Congregação Cristã no Brasil · Música",
-  regiao: "Região Bragantina",
+  regiao: "Sua Região",
   titulo: "Portal da Música",
-  subtitulo: "Região Bragantina · Secretaria da Música",
-  localidade: "Região Bragantina — Bragança Paulista/SP",
+  subtitulo: "Secretaria da Música",
+  localidade: "Sua Região — Cidade/UF",
   contato: "",
   heroTexto:
     "Um lugar só para as informações da música da regional: congregações, " +
@@ -43,8 +38,44 @@ const PADRAO: Ajustes = {
   indexavel: true,
 };
 
+/** Nome da coluna `chave` no banco → campo do objeto de ajustes. */
+const CAMPOS: Record<string, keyof Ajustes> = {
+  instituicao: "instituicao",
+  regiao: "regiao",
+  titulo: "titulo",
+  subtitulo: "subtitulo",
+  localidade: "localidade",
+  contato: "contato",
+  hero_texto: "heroTexto",
+  rodape_nota: "rodapeNota",
+  indexavel: "indexavel",
+};
+
 export async function getAjustes(): Promise<Ajustes> {
-  return PADRAO;
+  if (!supabaseConfigurado()) return PADRAO;
+
+  try {
+    const { data, error } = await clientePublico().from("ajustes").select("chave, valor");
+    if (error || !data) return PADRAO;
+
+    const ajustes = { ...PADRAO };
+
+    for (const { chave, valor } of data) {
+      const campo = CAMPOS[chave];
+      if (!campo) continue;
+
+      if (campo === "indexavel") {
+        ajustes.indexavel = valor.trim().toLowerCase() !== "nao";
+      } else if (valor.trim() !== "" || campo === "contato") {
+        ajustes[campo] = valor;
+      }
+    }
+
+    return ajustes;
+  } catch {
+    // Banco fora do ar não pode derrubar o portal inteiro.
+    return PADRAO;
+  }
 }
 
 /** URL pública do portal. Usada em metadata, sitemap e link mágico. */

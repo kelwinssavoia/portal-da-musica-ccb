@@ -484,8 +484,9 @@ conveniência de interface — a **garantia** é a RLS no banco.
   por convite de um admin, em `/admin/usuarios`.
 - Convite: Server Action chama `auth.admin.inviteUserByEmail` com a chave
   secreta (só no servidor), e já grava `perfis` + `perfil_areas`.
-- Sessão em cookies via `@supabase/ssr`; `middleware.ts` renova o token e
-  protege tudo sob `/admin`, redirecionando para `/admin/login`.
+- Sessão em cookies via `@supabase/ssr`; `proxy.ts` (a convenção que
+  substituiu `middleware.ts` no Next 16) renova o token e protege tudo sob
+  `/admin`, redirecionando para `/admin/login`.
 - Trigger `on auth.users insert` cria a linha em `perfis` com `papel='editor'`
   e `ativo=false` — quem não foi convidado não edita nada mesmo que consiga
   autenticar.
@@ -644,7 +645,8 @@ portal-musica/
 │       └── layout.tsx     # menu filtrado pelas áreas do usuário
 ├── components/            # ui/ (shadcn), site/, admin/, icones/
 ├── lib/
-│   ├── supabase/          # client.ts, server.ts, middleware.ts, admin.ts
+│   ├── supabase/          # config, publico, servidor, navegador, admin
+│   ├── tipos-banco.ts     # tipos do schema (regenerar com a CLI)
 │   ├── ensaios.ts         # recorrência (funções puras)
 │   ├── datas.ts           # formatação PT-BR, fuso America/Sao_Paulo
 │   ├── busca.ts           # normalização e ranqueamento
@@ -655,7 +657,7 @@ portal-musica/
 │   └── seed.sql           # dados genéricos de partida
 ├── scripts/importar-planilha.ts
 ├── docs/ARQUITETURA.md    # este documento
-├── middleware.ts
+├── proxy.ts               # renova sessão e protege /admin
 ├── LICENSE                # MIT
 ├── CONTRIBUTING.md
 └── README.md              # visão geral + guia de instalação resumido

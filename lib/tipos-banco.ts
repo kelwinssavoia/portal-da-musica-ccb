@@ -1,0 +1,192 @@
+/**
+ * Tipos do banco, espelhando `supabase/migrations/`.
+ *
+ * Escrito à mão porque o projeto Supabase ainda não existe. Assim que existir,
+ * regenerar com:
+ *
+ *   npx supabase gen types typescript --project-id <ref> > lib/tipos-banco.ts
+ *
+ * Se este arquivo divergir das migrações, a migração é que está certa.
+ */
+
+export type AppRole = "admin" | "editor";
+
+export type PortalArea =
+  | "congregacoes"
+  | "eventos"
+  | "circulares"
+  | "arquivos"
+  | "duvidas"
+  | "ajustes"
+  | "usuarios";
+
+export type TipoArquivo =
+  | "pdf"
+  | "planilha"
+  | "documento"
+  | "formulario"
+  | "pasta"
+  | "video"
+  | "link";
+
+/** 'upload' = hospedado no Storage do portal; 'link' = endereço externo. */
+export type OrigemArquivo = "upload" | "link";
+
+export type Perfil = {
+  id: string;
+  nome: string;
+  email: string;
+  papel: AppRole;
+  ativo: boolean;
+  criado_em: string;
+};
+
+export type Congregacao = {
+  id: string;
+  slug: string;
+  nome: string;
+  endereco: string;
+  maps_url: string | null;
+  foto_path: string | null;
+  /** 0 = domingo … 6 = sábado. */
+  culto_dow: number | null;
+  culto_hora: string | null;
+  /** 1..4 = n-ésima do mês; 5 = último. */
+  ensaio_ord: number | null;
+  ensaio_dow: number | null;
+  ensaio_hora: string | null;
+  /** null = todo mês. Lista 1..12 quando o ensaio não é mensal. */
+  ensaio_meses: number[] | null;
+  observacoes: string | null;
+  ordem: number;
+  ativo: boolean;
+  atualizado_em: string;
+};
+
+export type TipoEvento = {
+  id: string;
+  label: string;
+  cor: string;
+  cor_suave: string;
+  ordem: number;
+};
+
+export type EventoRow = {
+  id: string;
+  tipo_id: string;
+  titulo: string;
+  data: string;
+  hora: string | null;
+  congregacao_id: string | null;
+  descricao: string | null;
+  ativo: boolean;
+};
+
+export type EnsaioExcecao = {
+  id: string;
+  congregacao_id: string;
+  data_original: string;
+  cancelado: boolean;
+  nova_data: string | null;
+  nova_hora: string | null;
+  motivo: string | null;
+};
+
+export type Circular = {
+  id: string;
+  numero: string;
+  titulo: string;
+  resumo: string | null;
+  data: string;
+  origem: OrigemArquivo;
+  arquivo_path: string | null;
+  arquivo_nome: string | null;
+  url: string | null;
+  publicado: boolean;
+};
+
+export type ArquivoCategoria = {
+  id: string;
+  nome: string;
+  descricao: string | null;
+  ordem: number;
+  ativo: boolean;
+};
+
+export type Arquivo = {
+  id: string;
+  categoria_id: string;
+  titulo: string;
+  descricao: string | null;
+  tipo: TipoArquivo;
+  origem: OrigemArquivo;
+  arquivo_path: string | null;
+  arquivo_nome: string | null;
+  tamanho_bytes: number | null;
+  url: string | null;
+  /** Incrementa a cada substituição; vira `?v=` no endereço público. */
+  versao: number;
+  prazo: string | null;
+  /** Conteúdo placeholder, ainda não conferido pela secretaria. */
+  exemplo: boolean;
+  ordem: number;
+  ativo: boolean;
+  atualizado_em: string;
+};
+
+export type Duvida = {
+  id: string;
+  pergunta: string;
+  resposta: string;
+  ordem: number;
+  ativo: boolean;
+};
+
+export type Ajuste = {
+  chave: string;
+  valor: string;
+  descricao: string | null;
+};
+
+/** Campos que o banco preenche sozinho e não vão no insert. */
+type Gerados = "id" | "criado_em" | "atualizado_em";
+
+/**
+ * `Relationships` é obrigatório: sem ele o cliente do Supabase não reconhece o
+ * schema e todas as consultas passam a devolver `never`.
+ */
+type Tabela<Row, Obrigatorios extends keyof Row = never> = {
+  Row: Row;
+  Insert: Partial<Omit<Row, Gerados>> & Pick<Row, Obrigatorios>;
+  Update: Partial<Omit<Row, Gerados>>;
+  Relationships: [];
+};
+
+export type Database = {
+  public: {
+    Tables: {
+      perfis: Tabela<Perfil, "id" | "email">;
+      perfil_areas: Tabela<{ perfil_id: string; area: PortalArea }, "perfil_id" | "area">;
+      congregacoes: Tabela<Congregacao, "slug" | "nome">;
+      tipos_evento: Tabela<TipoEvento, "id" | "label" | "cor" | "cor_suave">;
+      eventos: Tabela<EventoRow, "tipo_id" | "titulo" | "data">;
+      ensaio_excecoes: Tabela<EnsaioExcecao, "congregacao_id" | "data_original">;
+      circulares: Tabela<Circular, "numero" | "titulo" | "data">;
+      arquivo_categorias: Tabela<ArquivoCategoria, "nome">;
+      arquivos: Tabela<Arquivo, "categoria_id" | "titulo">;
+      duvidas: Tabela<Duvida, "pergunta" | "resposta">;
+      ajustes: Tabela<Ajuste, "chave">;
+    };
+    Views: { [_ in never]: never };
+    Functions: {
+      is_admin: { Args: Record<string, never>; Returns: boolean };
+      pode_editar: { Args: { a: PortalArea }; Returns: boolean };
+    };
+    Enums: {
+      app_role: AppRole;
+      portal_area: PortalArea;
+      tipo_arquivo: TipoArquivo;
+    };
+    CompositeTypes: { [_ in never]: never };
+  };
+};
