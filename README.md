@@ -38,8 +38,8 @@ Storage) · deploy na Vercel. Roda inteiro no plano gratuito das duas.
 ## Rodar localmente
 
 ```bash
-git clone https://github.com/kelwinssavoia/portal-musica.git
-cd portal-musica
+git clone https://github.com/kelwinssavoia/portal-da-musica-ccb.git
+cd portal-da-musica-ccb
 npm install
 cp .env.example .env.local   # preencha com os dados do seu Supabase
 npm run dev
