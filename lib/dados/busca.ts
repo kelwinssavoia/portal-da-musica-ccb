@@ -10,6 +10,7 @@ import {
 import { listarCirculares } from "@/lib/dados/circulares";
 import { eventosDoPeriodo, listarTiposEvento, TIPO_ENSAIO_LOCAL } from "@/lib/dados/eventos";
 import { listarCongregacoes } from "@/lib/dados/congregacoes";
+import { nomeDaCidade } from "@/lib/cidades";
 import { listarCategorias, listarDuvidas } from "@/lib/dados/secretaria";
 import { cultosEmTexto, dataLonga, formatarHora, padraoEnsaio } from "@/lib/datas";
 import { partesISO } from "@/lib/ensaios";
@@ -59,11 +60,15 @@ export async function buscar(consulta: string, hoje: string): Promise<GrupoBusca
   }
 
   for (const c of congregacoes) {
+    const cidade = c.cidade ? nomeDaCidade(c.cidade) : "";
+
     juntar(
       "Congregações",
-      [c.nome, c.endereco, c.observacoes ?? ""],
+      // A cidade entra no texto buscável: procurar por "Bragança" precisa
+      // trazer todas as comuns de lá.
+      [c.nome, c.endereco, cidade, c.observacoes ?? ""],
       c.nome,
-      c.endereco,
+      [cidade, c.endereco].filter(Boolean).join(" · "),
       `/congregacoes/${c.slug}`,
     );
 

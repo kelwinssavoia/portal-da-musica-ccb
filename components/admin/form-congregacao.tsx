@@ -9,6 +9,8 @@ import {
 } from "@/app/admin/(painel)/congregacoes/acoes";
 import { DIAS, MESES_CURTO, ORDINAIS } from "@/lib/datas";
 import type { ComumComCultos } from "@/lib/dados/congregacoes";
+import { nomeDaCidade } from "@/lib/cidades";
+import type { Cidade } from "@/lib/tipos-banco";
 
 const OPCOES_DIA = DIAS.map((nome, i) => ({ valor: i, nome }));
 const OPCOES_ORDINAL = [1, 2, 3, 4, 5].map((o) => ({ valor: o, nome: ORDINAIS[o] }));
@@ -18,7 +20,13 @@ function paraInput(hora: string | null): string {
   return hora ? hora.slice(0, 5) : "";
 }
 
-export function FormCongregacao({ congregacao: c }: { congregacao?: ComumComCultos }) {
+export function FormCongregacao({
+  congregacao: c,
+  cidades,
+}: {
+  congregacao?: ComumComCultos;
+  cidades: Cidade[];
+}) {
   const editando = Boolean(c);
   // `null` no banco significa "todo mês"; no formulário isso é tudo marcado.
   const mesesMarcados = c?.ensaio_meses ?? null;
@@ -44,6 +52,22 @@ export function FormCongregacao({ congregacao: c }: { congregacao?: ComumComCult
           valor={c?.slug}
         />
       </div>
+
+      <Selecao
+        nome="cidade_id"
+        rotulo="Cidade"
+        // Só é obrigatório depois que existe cidade cadastrada — numa instalação
+        // nova, a secretaria cadastra as comuns antes das cidades.
+        obrigatorio={cidades.length > 0}
+        vazio={cidades.length > 0 ? "Selecione a cidade" : "Nenhuma cidade cadastrada ainda"}
+        opcoes={cidades.map((cid) => ({ valor: cid.id, nome: nomeDaCidade(cid) }))}
+        valor={c?.cidade_id}
+        ajuda={
+          cidades.length === 0
+            ? "Cadastre as cidades da regional na tela de Congregações."
+            : undefined
+        }
+      />
 
       <AreaTexto nome="endereco" rotulo="Endereço" valor={c?.endereco} linhas={2} />
 

@@ -33,10 +33,20 @@ export function normalizar(texto: string): string {
     .trim();
 }
 
-/** Termos da consulta, já normalizados. Vazio quando não há busca. */
+/**
+ * Termos da consulta, já normalizados.
+ *
+ * Termo de uma letra é descartado quando há outro maior: buscar "teste a" não
+ * deve casar com tudo que tem a letra "a". Se a consulta inteira for de uma
+ * letra, ela é mantida — senão a busca não responderia nada.
+ */
 export function termosDe(consulta: string): string[] {
   const n = normalizar(consulta);
-  return n === "" ? [] : n.split(" ");
+  if (n === "") return [];
+
+  const todos = n.split(" ");
+  const relevantes = todos.filter((t) => t.length > 1);
+  return relevantes.length > 0 ? relevantes : todos;
 }
 
 /**

@@ -41,10 +41,19 @@ export type Perfil = {
   criado_em: string;
 };
 
+export type Cidade = {
+  id: string;
+  nome: string;
+  /** Sigla do estado. Uma regional pode atravessar divisa. */
+  uf: string | null;
+  ativo: boolean;
+};
+
 export type Congregacao = {
   id: string;
   slug: string;
   nome: string;
+  cidade_id: string | null;
   endereco: string;
   maps_url: string | null;
   foto_path: string | null;
@@ -172,6 +181,7 @@ export type Database = {
     Tables: {
       perfis: Tabela<Perfil, "id" | "email">;
       perfil_areas: Tabela<{ perfil_id: string; area: PortalArea }, "perfil_id" | "area">;
+      cidades: Tabela<Cidade, "nome">;
       congregacoes: Tabela<Congregacao, "slug" | "nome">;
       congregacao_cultos: Tabela<CongregacaoCulto, "congregacao_id" | "dow">;
       tipos_evento: Tabela<TipoEvento, "id" | "label" | "cor" | "cor_suave">;

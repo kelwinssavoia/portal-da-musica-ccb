@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 
 import { GradeCalendario, type EventoNaGrade } from "@/components/site/grade-calendario";
+import { LinkComum } from "@/components/site/link-comum";
 import { Bolinha, Selo } from "@/components/site/selo";
 import { MESES, dataLonga, formatarHora } from "@/lib/datas";
 import { hoje as hojeDaRegional } from "@/lib/hoje";
@@ -148,9 +149,7 @@ function Agenda({ eventos, hoje }: { eventos: EventoNaGrade[]; hoje: string }) {
               <p className="mt-0.5 text-[12.5px]">{e.label}</p>
 
               {e.congregacaoSlug && (
-                <Link href={`/congregacoes/${e.congregacaoSlug}`} className="text-[12.5px]">
-                  {e.congregacaoNome}
-                </Link>
+                <LinkComum slug={e.congregacaoSlug} nome={e.congregacaoNome} />
               )}
             </div>
           </li>

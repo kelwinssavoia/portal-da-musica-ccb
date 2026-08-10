@@ -36,8 +36,8 @@ Seis áreas públicas, especificadas visualmente em `portal-frontend/` (protóti
 `Portal.dc.html` + `DOCUMENTACAO.md`):
 
 1. **Início** — hero, atalhos com contagem, próximos eventos, últimas circulares.
-2. **Congregações** — cards com foto, endereço, culto oficial e ensaio local;
-   detalhe com rota no GPS.
+2. **Congregações** — cards com foto, endereço, cultos oficiais e ensaio local,
+   **agrupados por cidade**; detalhe com rota no GPS.
 3. **Ensaios** — três visões: por comum, por dia da semana, próximos do mês.
    Ensaios regionais listados abaixo.
 4. **Calendário** — grade mensal ↔ agenda, com tipos de evento coloridos.
@@ -125,16 +125,26 @@ create table public.perfil_areas (
 ### 4.2 Conteúdo
 
 ```sql
+-- ---------- Cidades da região ----------
+-- Uma regional cobre mais de uma cidade; é o que permite agrupar a lista de
+-- congregações de forma legível.
+create table public.cidades (
+  id    uuid primary key default gen_random_uuid(),
+  nome  text not null,
+  uf    text check (uf is null or char_length(uf) = 2),
+  ativo boolean not null default true,
+  unique (nome, uf)
+);
+
 -- ---------- Congregações (comuns) ----------
 create table public.congregacoes (
   id           uuid primary key default gen_random_uuid(),
   slug         text not null unique,           -- usado na URL: /congregacoes/centro
   nome         text not null,
+  cidade_id    uuid references public.cidades(id) on delete set null,
   endereco     text not null default '',
   maps_url     text,                           -- vazio => gerado a partir do endereço
   foto_path    text,                           -- caminho no bucket 'congregacoes'
-  culto_dow    smallint check (culto_dow between 0 and 6),   -- 0=Dom
-  culto_hora   time,
   ensaio_ord   smallint check (ensaio_ord between 1 and 5),  -- 5 = "último"
   ensaio_dow   smallint check (ensaio_dow between 0 and 6),
   ensaio_hora  time,
@@ -143,6 +153,15 @@ create table public.congregacoes (
   ordem        int not null default 0,
   ativo        boolean not null default true,
   atualizado_em timestamptz not null default now()
+);
+
+-- ---------- Cultos oficiais ----------
+-- Uma comum tem mais de um culto por semana, um por dia da semana.
+create table public.congregacao_cultos (
+  congregacao_id uuid not null references public.congregacoes(id) on delete cascade,
+  dow            smallint not null check (dow between 0 and 6),
+  hora           time,
+  primary key (congregacao_id, dow)
 );
 
 -- ---------- Tipos de evento (semente editável) ----------
@@ -296,7 +315,7 @@ Mapa área → tabelas:
 
 | Área | Tabelas |
 | --- | --- |
-| `congregacoes` | `congregacoes` |
+| `congregacoes` | `congregacoes`, `congregacao_cultos`, `cidades` |
 | `eventos` | `eventos`, `ensaio_excecoes`, `tipos_evento` |
 | `circulares` | `circulares` |
 | `arquivos` | `arquivos`, `arquivo_categorias` |

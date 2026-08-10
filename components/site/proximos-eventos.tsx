@@ -1,5 +1,5 @@
-import Link from "next/link";
 
+import { LinkComum } from "@/components/site/link-comum";
 import { Bolinha, Selo } from "@/components/site/selo";
 import { DIAS_CURTO, MESES_CURTO, formatarHora } from "@/lib/datas";
 import { destaqueDe } from "@/lib/destaque";
@@ -57,7 +57,7 @@ export function ProximosEventos({
 
               <p className="mt-0.5 text-[12.5px]">
                 {e.congregacaoSlug ? (
-                  <Link href={`/congregacoes/${e.congregacaoSlug}`}>{e.congregacaoNome}</Link>
+                  <LinkComum slug={e.congregacaoSlug} nome={e.congregacaoNome} />
                 ) : (
                   e.congregacaoNome
                 )}

@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 
+import { LinkComum } from "@/components/site/link-comum";
 import { Bolinha } from "@/components/site/selo";
 import { DIAS_CURTO, dataLonga, formatarHora } from "@/lib/datas";
 import type { Evento } from "@/lib/ensaios";
@@ -129,12 +129,7 @@ export function GradeCalendario({
                     {e.label}
                   </span>
                   {e.congregacaoSlug && (
-                    <Link
-                      href={`/congregacoes/${e.congregacaoSlug}`}
-                      className="block text-[12.5px]"
-                    >
-                      {e.congregacaoNome}
-                    </Link>
+                    <LinkComum slug={e.congregacaoSlug} nome={e.congregacaoNome} />
                   )}
                   {e.descricao && <span className="block text-[12px]">{e.descricao}</span>}
                 </span>

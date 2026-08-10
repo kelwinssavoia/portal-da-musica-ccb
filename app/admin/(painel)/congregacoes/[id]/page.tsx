@@ -22,12 +22,15 @@ export default async function EditarCongregacao({
 
   if (!comum) notFound();
 
-  const { data: cultos } = await supabase
-    .from("congregacao_cultos")
-    .select("*")
-    .eq("congregacao_id", id);
+  const [cultos, cidade, cidades] = await Promise.all([
+    supabase.from("congregacao_cultos").select("*").eq("congregacao_id", id),
+    comum.cidade_id
+      ? supabase.from("cidades").select("*").eq("id", comum.cidade_id).maybeSingle()
+      : Promise.resolve({ data: null }),
+    supabase.from("cidades").select("*").order("nome"),
+  ]);
 
-  const congregacao = { ...comum, cultos: cultos ?? [] };
+  const congregacao = { ...comum, cultos: cultos.data ?? [], cidade: cidade.data ?? null };
 
   return (
     <div className="mx-auto max-w-[720px]">
@@ -38,7 +41,7 @@ export default async function EditarCongregacao({
         </Link>
       </div>
       <div className="mt-5">
-        <FormCongregacao congregacao={congregacao} />
+        <FormCongregacao congregacao={congregacao} cidades={cidades.data ?? []} />
       </div>
     </div>
   );

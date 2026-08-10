@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { DetalheCongregacao } from "@/components/site/detalhe-congregacao";
 import { buscarCongregacao, listarCongregacoes } from "@/lib/dados/congregacoes";
 import { cultosEmTexto, padraoEnsaio } from "@/lib/datas";
+import { nomeDaCidade } from "@/lib/cidades";
 
 export async function generateStaticParams() {
   const congregacoes = await listarCongregacoes();
@@ -15,6 +16,7 @@ export async function generateMetadata({ params }: PageProps<"/congregacoes/[slu
   if (!c) return { title: "Congregação não encontrada" };
 
   const partes = [
+    c.cidade ? nomeDaCidade(c.cidade) : "",
     c.endereco,
     cultosEmTexto(c.cultos) && `Cultos: ${cultosEmTexto(c.cultos)}`,
     padraoEnsaio(c.ensaio_ord, c.ensaio_dow, c.ensaio_hora) &&

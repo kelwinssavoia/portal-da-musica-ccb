@@ -43,6 +43,7 @@ const esquema = z.object({
   id: textoOpcional,
   nome: textoObrigatorio("Nome"),
   slug: textoOpcional,
+  cidade_id: textoOpcional,
   endereco: textoOpcional,
   maps_url: textoOpcional,
   ensaio_ord: numeroOpcional,
@@ -71,6 +72,7 @@ export async function salvarCongregacao(_: unknown, dados: FormData): Promise<Re
     const registro = {
       nome: v.nome,
       slug,
+      cidade_id: v.cidade_id,
       endereco: v.endereco ?? "",
       maps_url: v.maps_url,
       ensaio_ord: v.ensaio_ord,
@@ -156,5 +158,57 @@ export async function removerFoto(_: unknown, dados: FormData): Promise<Resultad
     if (error) throw error;
 
     await apagarArquivo(supabase, "congregacoes", data?.foto_path ?? null);
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Cidades
+//
+// Mesma área de permissão das congregações: quem cadastra comum cadastra a
+// cidade dela. Não vira uma área própria no menu porque são poucas linhas e o
+// assunto é o mesmo.
+// ---------------------------------------------------------------------------
+
+const esquemaCidade = z.object({
+  id: textoOpcional,
+  nome: textoObrigatorio("Nome"),
+  uf: z
+    .string()
+    .optional()
+    .transform((s) => {
+      const v = (s ?? "").trim().toUpperCase();
+      return v === "" ? null : v;
+    })
+    .refine((v) => v === null || /^[A-Z]{2}$/.test(v), { message: "use a sigla de 2 letras" }),
+  ativo: marcado,
+});
+
+export async function salvarCidade(_: unknown, dados: FormData): Promise<Resultado> {
+  return acao("congregacoes", esquemaCidade, dados, async (v, supabase) => {
+    const registro = { nome: v.nome, uf: v.uf, ativo: v.ativo };
+
+    const { error } = v.id
+      ? await supabase.from("cidades").update(registro).eq("id", v.id)
+      : await supabase.from("cidades").insert(registro);
+
+    if (error) throw error;
+  });
+}
+
+export async function excluirCidade(_: unknown, dados: FormData): Promise<Resultado> {
+  return acao("congregacoes", esquemaId, dados, async (v, supabase) => {
+    const { count } = await supabase
+      .from("congregacoes")
+      .select("*", { count: "exact", head: true })
+      .eq("cidade_id", v.id);
+
+    if ((count ?? 0) > 0) {
+      throw new Error(
+        `Esta cidade tem ${count} comum(ns) ligada(s) a ela. Mude a cidade dessas comuns antes de excluí-la.`,
+      );
+    }
+
+    const { error } = await supabase.from("cidades").delete().eq("id", v.id);
+    if (error) throw error;
   });
 }

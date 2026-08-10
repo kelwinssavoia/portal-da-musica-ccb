@@ -1,7 +1,7 @@
 import { Suspense } from "react";
-import Link from "next/link";
 
 import { Abas } from "@/components/site/abas";
+import { LinkComum } from "@/components/site/link-comum";
 import { Selo } from "@/components/site/selo";
 import { dataCurta, DIAS, formatarHora, frequenciaEnsaio, ORDINAIS, padraoEnsaio } from "@/lib/datas";
 import { comunsComEnsaio, ensaiosRegionais, type ComumComEnsaio } from "@/lib/dados/eventos";
@@ -81,9 +81,7 @@ async function Conteudo({ searchParams }: { searchParams: PageProps<"/ensaios">[
                     <Selo destaque={destaque} />
                   </span>
                   {e.congregacaoSlug && (
-                    <Link href={`/congregacoes/${e.congregacaoSlug}`} className="text-[12.5px]">
-                      {e.congregacaoNome}
-                    </Link>
+                    <LinkComum slug={e.congregacaoSlug} nome={e.congregacaoNome} />
                   )}
                 </li>
               );
@@ -108,9 +106,7 @@ function PorComum({ comuns, hoje }: { comuns: ComumComEnsaio[]; hoje: string }) 
             className={`bg-superficie shadow-portal rounded-r-portal border-l-4 p-4 ${classeDestaque(destaque)}`}
           >
             <div className="flex items-start justify-between gap-2">
-              <Link href={`/congregacoes/${c.slug}`} className="text-sm font-bold">
-                {c.nome}
-              </Link>
+              <LinkComum slug={c.slug} nome={c.nome} className="text-sm font-bold" />
               <Selo destaque={destaque} />
             </div>
 
@@ -163,9 +159,7 @@ function PorSemana({ comuns, hoje }: { comuns: ComumComEnsaio[]; hoje: string })
                   </p>
 
                   <div className="mt-2 flex items-center justify-between gap-2">
-                    <Link href={`/congregacoes/${c.slug}`} className="text-[13px] font-bold">
-                      {c.nome}
-                    </Link>
+                    <LinkComum slug={c.slug} nome={c.nome} className="text-[13px] font-bold" />
                     <Selo destaque={destaque} />
                   </div>
 
@@ -225,9 +219,7 @@ function ProximosDoMes({
               <span className="opacity-80">{formatarHora(proximo!.hora)}</span>
               <Selo destaque={destaque} />
             </span>
-            <Link href={`/congregacoes/${c.slug}`} className="text-[12.5px]">
-              {c.nome}
-            </Link>
+            <LinkComum slug={c.slug} nome={c.nome} />
           </li>
         );
       })}

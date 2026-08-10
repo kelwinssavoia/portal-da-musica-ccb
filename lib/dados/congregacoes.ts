@@ -2,10 +2,16 @@ import { cacheLife, cacheTag } from "next/cache";
 
 import { supabaseConfigurado } from "@/lib/supabase/config";
 import { clientePublico } from "@/lib/supabase/publico";
-import type { Congregacao, CongregacaoCulto } from "@/lib/tipos-banco";
+import type { Cidade, Congregacao, CongregacaoCulto } from "@/lib/tipos-banco";
 
-/** Comum com a lista de cultos oficiais dela. */
-export type ComumComCultos = Congregacao & { cultos: CongregacaoCulto[] };
+/** Comum com os cultos oficiais dela e a cidade onde fica. */
+export type ComumComCultos = Congregacao & {
+  cultos: CongregacaoCulto[];
+  cidade: Cidade | null;
+};
+
+/** Comuns de uma cidade. `cidade` nulo agrupa as que ainda não têm cidade. */
+export type GrupoDeCidade = { cidade: Cidade | null; comuns: ComumComCultos[] };
 
 /**
  * Banco fora do ar não pode derrubar o portal: a consulta registra o erro no
@@ -31,22 +37,51 @@ export async function listarCongregacoes(): Promise<ComumComCultos[]> {
   if (!supabaseConfigurado()) return [];
 
   const supabase = clientePublico();
-  const [comuns, cultos] = await Promise.all([
+  const [comuns, cultos, cidades] = await Promise.all([
     supabase.from("congregacoes").select("*"),
     supabase.from("congregacao_cultos").select("*"),
+    supabase.from("cidades").select("*"),
   ]);
 
   if (comuns.error || cultos.error) {
     aviso("congregacoes", comuns.error ?? cultos.error);
     return [];
   }
+  if (cidades.error) aviso("cidades", cidades.error);
+
+  const porId = new Map((cidades.data ?? []).map((c) => [c.id, c]));
 
   return ordenarPorNome(
     (comuns.data ?? []).map((c) => ({
       ...c,
       cultos: (cultos.data ?? []).filter((k) => k.congregacao_id === c.id),
+      cidade: c.cidade_id ? (porId.get(c.cidade_id) ?? null) : null,
     })),
   );
+}
+
+/**
+ * Agrupa as comuns por cidade, em ordem alfabética. As que ainda não têm cidade
+ * ficam por último, num grupo sem título.
+ *
+ * Quando nenhuma comum tem cidade — instalação nova, antes de a secretaria
+ * cadastrar — devolve um único grupo, e a tela mostra a grade lisa de sempre.
+ */
+export function agruparPorCidade(comuns: ComumComCultos[]): GrupoDeCidade[] {
+  const grupos = new Map<string, GrupoDeCidade>();
+
+  for (const comum of comuns) {
+    const chave = comum.cidade?.id ?? "";
+    const grupo = grupos.get(chave);
+    if (grupo) grupo.comuns.push(comum);
+    else grupos.set(chave, { cidade: comum.cidade, comuns: [comum] });
+  }
+
+  return [...grupos.values()].sort((a, b) => {
+    if (!a.cidade) return 1;
+    if (!b.cidade) return -1;
+    return a.cidade.nome.localeCompare(b.cidade.nome, "pt-BR");
+  });
 }
 
 export async function buscarCongregacao(slug: string): Promise<ComumComCultos | null> {
@@ -69,12 +104,14 @@ export async function buscarCongregacao(slug: string): Promise<ComumComCultos | 
   }
   if (!data) return null;
 
-  const { data: cultos } = await supabase
-    .from("congregacao_cultos")
-    .select("*")
-    .eq("congregacao_id", data.id);
+  const [cultos, cidade] = await Promise.all([
+    supabase.from("congregacao_cultos").select("*").eq("congregacao_id", data.id),
+    data.cidade_id
+      ? supabase.from("cidades").select("*").eq("id", data.cidade_id).maybeSingle()
+      : Promise.resolve({ data: null }),
+  ]);
 
-  return { ...data, cultos: cultos ?? [] };
+  return { ...data, cultos: cultos.data ?? [], cidade: cidade.data ?? null };
 }
 
 /**

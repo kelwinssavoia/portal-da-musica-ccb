@@ -38,6 +38,16 @@ describe("termosDe", () => {
   it("devolve vazio para consulta em branco", () => {
     expect(termosDe("   ")).toEqual([]);
   });
+
+  it("descarta termo de uma letra quando há outro maior", () => {
+    // Sem isso, "Cidade Teste A" casaria com tudo que tem a letra "a".
+    expect(termosDe("teste a")).toEqual(["teste"]);
+    expect(termosDe("braganca 1")).toEqual(["braganca"]);
+  });
+
+  it("mantém o termo de uma letra quando é o único", () => {
+    expect(termosDe("a")).toEqual(["a"]);
+  });
 });
 
 describe("pontuar", () => {

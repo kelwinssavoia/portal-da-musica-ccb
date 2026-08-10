@@ -1,6 +1,7 @@
 import { FotoCongregacao } from "@/components/site/foto-congregacao";
 import { cultosEmTexto, frequenciaEnsaio, padraoEnsaio } from "@/lib/datas";
 import { urlDoMapa, type ComumComCultos } from "@/lib/dados/congregacoes";
+import { nomeDaCidade } from "@/lib/cidades";
 
 function Linha({ rotulo, valor }: { rotulo: string; valor: string }) {
   if (!valor) return null;
@@ -33,6 +34,7 @@ export function DetalheCongregacao({ congregacao: c }: { congregacao: ComumComCu
         <p className="mt-1 text-[13px]">{c.endereco}</p>
 
         <div className="mt-4">
+          <Linha rotulo="Cidade" valor={c.cidade ? nomeDaCidade(c.cidade) : ""} />
           <Linha rotulo="Cultos oficiais" valor={cultosEmTexto(c.cultos)} />
           <Linha rotulo="Ensaio local" valor={ensaio} />
           {ensaio && <Linha rotulo="Frequência" valor={frequenciaEnsaio(c.ensaio_meses)} />}
