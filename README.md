@@ -45,6 +45,12 @@ cp .env.example .env.local   # preencha com os dados do seu Supabase
 npm run dev
 ```
 
+Testes das regras de recorrência:
+
+```bash
+npm test
+```
+
 Abra <http://localhost:3000>.
 
 ## Usar na sua região
@@ -61,7 +67,7 @@ Em construção, por fases (ver [§12 do documento de arquitetura](docs/ARQUITET
 - [x] **Fase 1** — layout base com a identidade visual da CCB
 - [x] **Fase 2** — Supabase: schema, RLS, buckets
 - [x] **Fase 3** — Congregações, Secretaria e Início lendo do banco
-- [ ] **Fase 4** — Ensaios e Calendário
+- [x] **Fase 4** — Ensaios e Calendário
 - [ ] **Fase 5** — Circulares e busca global
 - [ ] **Fase 6** — CMS
 - [ ] **Fase 7** — usuários e permissões
