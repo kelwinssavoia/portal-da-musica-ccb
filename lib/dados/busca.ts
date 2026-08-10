@@ -11,7 +11,7 @@ import { listarCirculares } from "@/lib/dados/circulares";
 import { eventosDoPeriodo, listarTiposEvento, TIPO_ENSAIO_LOCAL } from "@/lib/dados/eventos";
 import { listarCongregacoes } from "@/lib/dados/congregacoes";
 import { listarCategorias, listarDuvidas } from "@/lib/dados/secretaria";
-import { dataLonga, diaEHora, formatarHora, padraoEnsaio } from "@/lib/datas";
+import { cultosEmTexto, dataLonga, formatarHora, padraoEnsaio } from "@/lib/datas";
 import { partesISO } from "@/lib/ensaios";
 
 /**
@@ -80,9 +80,15 @@ export async function buscar(consulta: string, hoje: string): Promise<GrupoBusca
       );
     }
 
-    const culto = diaEHora(c.culto_dow, c.culto_hora);
+    const culto = cultosEmTexto(c.cultos);
     if (culto) {
-      juntar("Congregações", [`Culto oficial ${c.nome}`, culto], `Culto oficial — ${c.nome}`, culto, `/congregacoes/${c.slug}`);
+      juntar(
+        "Congregações",
+        [`Cultos ${c.nome}`, culto],
+        `Cultos oficiais — ${c.nome}`,
+        culto,
+        `/congregacoes/${c.slug}`,
+      );
     }
   }
 

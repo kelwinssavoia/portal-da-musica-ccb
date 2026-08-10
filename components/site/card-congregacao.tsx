@@ -1,12 +1,12 @@
 import Link from "next/link";
 
 import { FotoCongregacao } from "@/components/site/foto-congregacao";
-import { diaEHora, padraoEnsaio } from "@/lib/datas";
-import type { Congregacao } from "@/lib/tipos-banco";
+import { cultosEmTexto, padraoEnsaio } from "@/lib/datas";
+import type { ComumComCultos } from "@/lib/dados/congregacoes";
 
 /** Card da grade de Congregações. O card inteiro é clicável. */
-export function CardCongregacao({ congregacao: c }: { congregacao: Congregacao }) {
-  const culto = diaEHora(c.culto_dow, c.culto_hora);
+export function CardCongregacao({ congregacao: c }: { congregacao: ComumComCultos }) {
+  const culto = cultosEmTexto(c.cultos);
   const ensaio = padraoEnsaio(c.ensaio_ord, c.ensaio_dow, c.ensaio_hora);
 
   return (
@@ -23,7 +23,7 @@ export function CardCongregacao({ congregacao: c }: { congregacao: Congregacao }
         <dl className="mt-3 flex flex-col gap-1 text-[12.5px]">
           {culto && (
             <div className="flex gap-1.5">
-              <dt className="opacity-75">Culto oficial:</dt>
+              <dt className="opacity-75">Cultos:</dt>
               <dd className="text-azul font-bold">{culto}</dd>
             </div>
           )}

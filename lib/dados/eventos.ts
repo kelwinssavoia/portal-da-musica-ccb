@@ -50,7 +50,7 @@ async function lerBase(): Promise<{
 
   const supabase = clientePublico();
   const [congregacoes, excecoes] = await Promise.all([
-    supabase.from("congregacoes").select("*").order("ordem").order("nome"),
+    supabase.from("congregacoes").select("*").order("nome"),
     supabase.from("ensaio_excecoes").select("*"),
   ]);
 
@@ -78,14 +78,14 @@ export async function eventosDoPeriodo(de: string, ate: string): Promise<Evento[
 
   if (!supabaseConfigurado()) return [];
 
-  const { congregacoes, excecoes } = await lerBase();
+  // As duas leituras vão juntas: o banco fica em São Paulo e cada ida e volta
+  // custa tempo de rede. Em sequência, esta função demorava o dobro.
+  const [{ congregacoes, excecoes }, avulsosResp] = await Promise.all([
+    lerBase(),
+    clientePublico().from("eventos").select("*").gte("data", de).lte("data", ate),
+  ]);
 
-  const { data: avulsos, error } = await clientePublico()
-    .from("eventos")
-    .select("*")
-    .gte("data", de)
-    .lte("data", ate);
-
+  const { data: avulsos, error } = avulsosResp;
   if (error) aviso("eventos avulsos", error);
 
   const porId = new Map(congregacoes.map((c) => [c.id, c]));

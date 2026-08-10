@@ -14,13 +14,20 @@ export default async function EditarCongregacao({
   const { id } = await params;
 
   const supabase = await clienteServidor();
-  const { data: congregacao } = await supabase
+  const { data: comum } = await supabase
     .from("congregacoes")
     .select("*")
     .eq("id", id)
     .maybeSingle();
 
-  if (!congregacao) notFound();
+  if (!comum) notFound();
+
+  const { data: cultos } = await supabase
+    .from("congregacao_cultos")
+    .select("*")
+    .eq("congregacao_id", id);
+
+  const congregacao = { ...comum, cultos: cultos ?? [] };
 
   return (
     <div className="mx-auto max-w-[720px]">

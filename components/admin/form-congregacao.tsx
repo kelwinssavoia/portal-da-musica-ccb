@@ -8,7 +8,7 @@ import {
   salvarCongregacao,
 } from "@/app/admin/(painel)/congregacoes/acoes";
 import { DIAS, MESES_CURTO, ORDINAIS } from "@/lib/datas";
-import type { Congregacao } from "@/lib/tipos-banco";
+import type { ComumComCultos } from "@/lib/dados/congregacoes";
 
 const OPCOES_DIA = DIAS.map((nome, i) => ({ valor: i, nome }));
 const OPCOES_ORDINAL = [1, 2, 3, 4, 5].map((o) => ({ valor: o, nome: ORDINAIS[o] }));
@@ -18,7 +18,7 @@ function paraInput(hora: string | null): string {
   return hora ? hora.slice(0, 5) : "";
 }
 
-export function FormCongregacao({ congregacao: c }: { congregacao?: Congregacao }) {
+export function FormCongregacao({ congregacao: c }: { congregacao?: ComumComCultos }) {
   const editando = Boolean(c);
   // `null` no banco significa "todo mês"; no formulário isso é tudo marcado.
   const mesesMarcados = c?.ensaio_meses ?? null;
@@ -56,10 +56,38 @@ export function FormCongregacao({ congregacao: c }: { congregacao?: Congregacao 
       />
 
       <fieldset className="border-cinza rounded-portal border p-4">
-        <legend className="text-azul px-1 text-[12.5px] font-bold">Culto oficial</legend>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Selecao nome="culto_dow" rotulo="Dia da semana" opcoes={OPCOES_DIA} valor={c?.culto_dow} />
-          <Texto nome="culto_hora" rotulo="Hora" tipo="time" valor={paraInput(c?.culto_hora ?? null)} />
+        <legend className="text-azul px-1 text-[12.5px] font-bold">Cultos oficiais</legend>
+        <p className="mb-3 text-[12px] opacity-75">
+          Marque os dias em que a comum tem culto e informe a hora de cada um.
+        </p>
+
+        <div className="flex flex-col gap-2">
+          {DIAS.map((nome, dow) => {
+            const culto = c?.cultos.find((k) => k.dow === dow);
+
+            return (
+              <div key={dow} className="flex flex-wrap items-center gap-3">
+                <label className="flex min-w-[150px] items-center gap-2 text-[12.5px]">
+                  <input
+                    type="checkbox"
+                    name={`culto_dia_${dow}`}
+                    value="sim"
+                    defaultChecked={Boolean(culto)}
+                    className="size-4"
+                  />
+                  {nome}
+                </label>
+
+                <input
+                  type="time"
+                  name={`culto_hora_${dow}`}
+                  defaultValue={paraInput(culto?.hora ?? null)}
+                  aria-label={`Hora do culto de ${nome}`}
+                  className="border-cinza rounded-portal text-azul border bg-white px-3 py-1.5 text-[13px]"
+                />
+              </div>
+            );
+          })}
         </div>
       </fieldset>
 
@@ -125,15 +153,13 @@ export function FormCongregacao({ congregacao: c }: { congregacao?: Congregacao 
         linhas={2}
       />
 
-      <div className="grid items-end gap-4 sm:grid-cols-2">
-        <Arquivo
-          nome="foto"
-          rotulo="Foto da comum"
-          aceita="image/jpeg,image/png,image/webp"
-          ajuda="Até 5 MB. Subir uma nova substitui a atual."
-        />
-        <Texto nome="ordem" rotulo="Ordem na lista" tipo="number" valor={c?.ordem ?? 0} />
-      </div>
+      {/* Sem campo de ordem: a lista do portal é alfabética. */}
+      <Arquivo
+        nome="foto"
+        rotulo="Foto da comum"
+        aceita="image/jpeg,image/png,image/webp"
+        ajuda="Até 5 MB. Subir uma nova substitui a atual."
+      />
 
       <Marcar
         nome="ativo"

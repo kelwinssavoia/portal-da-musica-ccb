@@ -2,12 +2,13 @@
 
 import { AreaTexto, Marcar, Texto } from "@/components/admin/campos";
 import { FormRegistro } from "@/components/admin/form-registro";
-import { CHAVES, salvarAjustes, salvarIndexavel } from "@/app/admin/(painel)/ajustes/acoes";
+import { salvarAjustes, salvarIndexavel } from "@/app/admin/(painel)/ajustes/acoes";
+import { CAMPOS_AJUSTES } from "@/lib/ajustes-campos";
 
 export function FormAjustes({ valores }: { valores: Record<string, string> }) {
   return (
     <FormRegistro acao={salvarAjustes} rotuloSalvar="Salvar textos">
-      {CHAVES.map(({ chave, rotulo, ajuda, longo }) =>
+      {CAMPOS_AJUSTES.map(({ chave, rotulo, ajuda, longo }) =>
         longo ? (
           <AreaTexto key={chave} nome={chave} rotulo={rotulo} ajuda={ajuda} valor={valores[chave]} />
         ) : (

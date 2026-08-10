@@ -48,9 +48,6 @@ export type Congregacao = {
   endereco: string;
   maps_url: string | null;
   foto_path: string | null;
-  /** 0 = domingo … 6 = sábado. */
-  culto_dow: number | null;
-  culto_hora: string | null;
   /** 1..4 = n-ésima do mês; 5 = último. */
   ensaio_ord: number | null;
   ensaio_dow: number | null;
@@ -61,6 +58,14 @@ export type Congregacao = {
   ordem: number;
   ativo: boolean;
   atualizado_em: string;
+};
+
+/** Culto oficial de uma comum, um por dia da semana. */
+export type CongregacaoCulto = {
+  congregacao_id: string;
+  /** 0 = domingo … 6 = sábado. */
+  dow: number;
+  hora: string | null;
 };
 
 export type TipoEvento = {
@@ -168,6 +173,7 @@ export type Database = {
       perfis: Tabela<Perfil, "id" | "email">;
       perfil_areas: Tabela<{ perfil_id: string; area: PortalArea }, "perfil_id" | "area">;
       congregacoes: Tabela<Congregacao, "slug" | "nome">;
+      congregacao_cultos: Tabela<CongregacaoCulto, "congregacao_id" | "dow">;
       tipos_evento: Tabela<TipoEvento, "id" | "label" | "cor" | "cor_suave">;
       eventos: Tabela<EventoRow, "tipo_id" | "titulo" | "data">;
       ensaio_excecoes: Tabela<EnsaioExcecao, "congregacao_id" | "data_original">;

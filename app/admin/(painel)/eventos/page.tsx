@@ -14,7 +14,7 @@ export default async function AdminEventos() {
   const [eventos, tipos, congregacoes, excecoes] = await Promise.all([
     supabase.from("eventos").select("*").order("data", { ascending: false }),
     supabase.from("tipos_evento").select("*").order("ordem"),
-    supabase.from("congregacoes").select("*").order("ordem").order("nome"),
+    supabase.from("congregacoes").select("*").order("nome"),
     supabase.from("ensaio_excecoes").select("*").order("data_original", { ascending: false }),
   ]);
 

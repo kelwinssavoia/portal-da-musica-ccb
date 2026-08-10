@@ -1,7 +1,6 @@
 import { FotoCongregacao } from "@/components/site/foto-congregacao";
-import { diaEHora, frequenciaEnsaio, padraoEnsaio } from "@/lib/datas";
-import { urlDoMapa } from "@/lib/dados/congregacoes";
-import type { Congregacao } from "@/lib/tipos-banco";
+import { cultosEmTexto, frequenciaEnsaio, padraoEnsaio } from "@/lib/datas";
+import { urlDoMapa, type ComumComCultos } from "@/lib/dados/congregacoes";
 
 function Linha({ rotulo, valor }: { rotulo: string; valor: string }) {
   if (!valor) return null;
@@ -17,7 +16,7 @@ function Linha({ rotulo, valor }: { rotulo: string; valor: string }) {
  * Conteúdo do detalhe da congregação. Usado na página inteira e dentro do
  * modal — os dois mostram exatamente a mesma coisa.
  */
-export function DetalheCongregacao({ congregacao: c }: { congregacao: Congregacao }) {
+export function DetalheCongregacao({ congregacao: c }: { congregacao: ComumComCultos }) {
   const ensaio = padraoEnsaio(c.ensaio_ord, c.ensaio_dow, c.ensaio_hora);
 
   return (
@@ -34,7 +33,7 @@ export function DetalheCongregacao({ congregacao: c }: { congregacao: Congregaca
         <p className="mt-1 text-[13px]">{c.endereco}</p>
 
         <div className="mt-4">
-          <Linha rotulo="Culto oficial" valor={diaEHora(c.culto_dow, c.culto_hora)} />
+          <Linha rotulo="Cultos oficiais" valor={cultosEmTexto(c.cultos)} />
           <Linha rotulo="Ensaio local" valor={ensaio} />
           {ensaio && <Linha rotulo="Frequência" valor={frequenciaEnsaio(c.ensaio_meses)} />}
         </div>

@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 
 import { DetalheCongregacao } from "@/components/site/detalhe-congregacao";
 import { buscarCongregacao, listarCongregacoes } from "@/lib/dados/congregacoes";
-import { diaEHora, padraoEnsaio } from "@/lib/datas";
+import { cultosEmTexto, padraoEnsaio } from "@/lib/datas";
 
 export async function generateStaticParams() {
   const congregacoes = await listarCongregacoes();
@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: PageProps<"/congregacoes/[slu
 
   const partes = [
     c.endereco,
-    diaEHora(c.culto_dow, c.culto_hora) && `Culto: ${diaEHora(c.culto_dow, c.culto_hora)}`,
+    cultosEmTexto(c.cultos) && `Cultos: ${cultosEmTexto(c.cultos)}`,
     padraoEnsaio(c.ensaio_ord, c.ensaio_dow, c.ensaio_hora) &&
       `Ensaio: ${padraoEnsaio(c.ensaio_ord, c.ensaio_dow, c.ensaio_hora)}`,
   ].filter(Boolean);

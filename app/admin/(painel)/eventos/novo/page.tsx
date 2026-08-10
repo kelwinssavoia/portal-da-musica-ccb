@@ -10,7 +10,7 @@ export default async function NovoEvento() {
   const supabase = await clienteServidor();
   const [tipos, congregacoes] = await Promise.all([
     supabase.from("tipos_evento").select("*").order("ordem"),
-    supabase.from("congregacoes").select("*").order("ordem").order("nome"),
+    supabase.from("congregacoes").select("*").order("nome"),
   ]);
 
   return (

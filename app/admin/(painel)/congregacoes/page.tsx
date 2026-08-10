@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 import { listarCongregacoes } from "@/lib/dados/congregacoes";
-import { diaEHora, frequenciaEnsaio, padraoEnsaio } from "@/lib/datas";
+import { cultosEmTexto, frequenciaEnsaio, padraoEnsaio } from "@/lib/datas";
 import { exigirArea } from "@/lib/permissoes";
 
 export const metadata = { title: "Congregações" };
@@ -30,7 +30,7 @@ export default async function AdminCongregacoes() {
           <thead className="border-cinza text-azul border-b">
             <tr>
               <th className="px-4 py-2.5">Comum</th>
-              <th className="px-4 py-2.5">Culto</th>
+              <th className="px-4 py-2.5">Cultos</th>
               <th className="px-4 py-2.5">Ensaio</th>
               <th className="px-4 py-2.5">Frequência</th>
               <th className="px-4 py-2.5"></th>
@@ -43,7 +43,7 @@ export default async function AdminCongregacoes() {
                   <span className="text-azul font-bold">{c.nome}</span>
                   {!c.ativo && <span className="ml-2 opacity-60">(oculta)</span>}
                 </td>
-                <td className="px-4 py-2.5">{diaEHora(c.culto_dow, c.culto_hora) || "—"}</td>
+                <td className="px-4 py-2.5">{cultosEmTexto(c.cultos) || "—"}</td>
                 <td className="px-4 py-2.5">
                   {padraoEnsaio(c.ensaio_ord, c.ensaio_dow, c.ensaio_hora) || "—"}
                 </td>

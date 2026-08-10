@@ -115,3 +115,18 @@ export function dataCurta(iso: string): string {
   const [, mes, dia] = iso.split("-").map(Number);
   return `${dia} ${MESES_CURTO[mes - 1].toLowerCase()}`;
 }
+
+/**
+ * Lista de cultos em texto: `"Dom · 09h e 18h30 · Qua · 19h30"` fica confuso,
+ * então o formato é `"Dom 09h, Dom 18h30, Qua 19h30"` — cada culto por inteiro,
+ * na ordem da semana.
+ */
+export function cultosEmTexto(cultos: { dow: number; hora: string | null }[]): string {
+  return [...cultos]
+    .sort((a, b) => a.dow - b.dow || (a.hora ?? "").localeCompare(b.hora ?? ""))
+    .map((c) => {
+      const h = formatarHora(c.hora);
+      return h ? `${DIAS_CURTO[c.dow]} ${h}` : DIAS_CURTO[c.dow];
+    })
+    .join(", ");
+}

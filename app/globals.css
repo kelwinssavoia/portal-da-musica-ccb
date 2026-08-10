@@ -58,4 +58,53 @@
     outline: 2px solid var(--color-azul-link);
     outline-offset: 2px;
   }
+
+  /* Campos de data e hora
+     ------------------------------------------------------------------
+     O navegador mostra a máscara (dd/mm/aaaa, --:--) como se fosse texto
+     do campo. Em azul, ela parecia valor preenchido; em cinza, lê-se como
+     campo vazio, que é o que ela é. */
+  input[type="date"],
+  input[type="time"],
+  input[type="datetime-local"] {
+    color: var(--color-texto);
+  }
+
+  /* WebKit/Blink expõem cada pedaço da máscara separadamente. */
+  ::-webkit-datetime-edit-text,
+  ::-webkit-datetime-edit-day-field,
+  ::-webkit-datetime-edit-month-field,
+  ::-webkit-datetime-edit-year-field,
+  ::-webkit-datetime-edit-hour-field,
+  ::-webkit-datetime-edit-minute-field {
+    color: var(--color-texto);
+  }
+
+  /* Já preenchido e em foco: azul, como os outros campos com conteúdo. */
+  input[type="date"]:focus,
+  input[type="time"]:focus {
+    color: var(--color-azul);
+  }
+
+  ::-webkit-calendar-picker-indicator {
+    opacity: 0.55;
+    cursor: pointer;
+  }
+
+  /* Dropdowns
+     ------------------------------------------------------------------
+     O Safari ignora borda, raio e padding do <select> nativo. Zerando a
+     aparência e desenhando a seta como imagem de fundo, os três
+     navegadores ficam iguais. */
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none' stroke='%23645f77' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M1 1.5 6 6.5l5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 34px;
+  }
+
+  select:disabled {
+    opacity: 0.6;
+  }
 }

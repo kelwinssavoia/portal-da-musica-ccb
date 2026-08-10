@@ -14,7 +14,7 @@ export default async function EditarEvento({ params }: PageProps<"/admin/eventos
   const [evento, tipos, congregacoes] = await Promise.all([
     supabase.from("eventos").select("*").eq("id", id).maybeSingle(),
     supabase.from("tipos_evento").select("*").order("ordem"),
-    supabase.from("congregacoes").select("*").order("ordem").order("nome"),
+    supabase.from("congregacoes").select("*").order("nome"),
   ]);
 
   if (!evento.data) notFound();
