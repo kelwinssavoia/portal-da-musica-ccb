@@ -1,6 +1,7 @@
 "use client";
 
 import { AreaTexto, Marcar, Texto } from "@/components/admin/campos";
+import { CampoData } from "@/components/admin/campo-data";
 import { CampoUpload } from "@/components/admin/campo-upload";
 import { FormExcluir, FormRegistro } from "@/components/admin/form-registro";
 import { excluirCircular, salvarCircular } from "@/app/admin/(painel)/circulares/acoes";
@@ -25,7 +26,7 @@ export function FormCircular({ circular: c }: { circular?: Circular }) {
           valor={c?.numero}
           ajuda="Ex.: Circular 08/2026"
         />
-        <Texto nome="data" rotulo="Data" tipo="date" obrigatorio valor={c?.data} />
+        <CampoData nome="data" rotulo="Data" obrigatorio valor={c?.data} />
       </div>
 
       <Texto nome="titulo" rotulo="Título" obrigatorio valor={c?.titulo} />

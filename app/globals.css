@@ -20,6 +20,45 @@
   --shadow-portal: 0 5px 15px 0 rgb(0 0 0 / 0.09);
 }
 
+/* Campos de data e hora
+   --------------------------------------------------------------------------
+   O navegador desenha a máscara (dd/mm/aaaa, --:--) como se fosse o valor do
+   campo, e não há pseudo-elemento de placeholder para estilizar. A saída é
+   colorir o campo inteiro conforme ele esteja vazio ou preenchido — quem
+   controla isso é components/admin/campo-data.tsx.
+
+   Fica em `utilities` porque `@layer base` perde para qualquer classe de cor do
+   Tailwind, que foi exatamente o motivo da máscara continuar azul. */
+@layer utilities {
+  .mascara-vazia,
+  .mascara-vazia::-webkit-datetime-edit,
+  .mascara-vazia::-webkit-datetime-edit-text,
+  .mascara-vazia::-webkit-datetime-edit-day-field,
+  .mascara-vazia::-webkit-datetime-edit-month-field,
+  .mascara-vazia::-webkit-datetime-edit-year-field,
+  .mascara-vazia::-webkit-datetime-edit-hour-field,
+  .mascara-vazia::-webkit-datetime-edit-minute-field {
+    /* Cinza de placeholder: presente, mas claramente "ainda não preenchido". */
+    color: #9c99a8;
+  }
+
+  .mascara-cheia,
+  .mascara-cheia::-webkit-datetime-edit,
+  .mascara-cheia::-webkit-datetime-edit-text,
+  .mascara-cheia::-webkit-datetime-edit-day-field,
+  .mascara-cheia::-webkit-datetime-edit-month-field,
+  .mascara-cheia::-webkit-datetime-edit-year-field,
+  .mascara-cheia::-webkit-datetime-edit-hour-field,
+  .mascara-cheia::-webkit-datetime-edit-minute-field {
+    color: var(--color-azul);
+  }
+
+  ::-webkit-calendar-picker-indicator {
+    opacity: 0.55;
+    cursor: pointer;
+  }
+}
+
 @layer base {
   html {
     font-family: var(--font-sans);
@@ -57,38 +96,6 @@
   :focus-visible {
     outline: 2px solid var(--color-azul-link);
     outline-offset: 2px;
-  }
-
-  /* Campos de data e hora
-     ------------------------------------------------------------------
-     O navegador mostra a máscara (dd/mm/aaaa, --:--) como se fosse texto
-     do campo. Em azul, ela parecia valor preenchido; em cinza, lê-se como
-     campo vazio, que é o que ela é. */
-  input[type="date"],
-  input[type="time"],
-  input[type="datetime-local"] {
-    color: var(--color-texto);
-  }
-
-  /* WebKit/Blink expõem cada pedaço da máscara separadamente. */
-  ::-webkit-datetime-edit-text,
-  ::-webkit-datetime-edit-day-field,
-  ::-webkit-datetime-edit-month-field,
-  ::-webkit-datetime-edit-year-field,
-  ::-webkit-datetime-edit-hour-field,
-  ::-webkit-datetime-edit-minute-field {
-    color: var(--color-texto);
-  }
-
-  /* Já preenchido e em foco: azul, como os outros campos com conteúdo. */
-  input[type="date"]:focus,
-  input[type="time"]:focus {
-    color: var(--color-azul);
-  }
-
-  ::-webkit-calendar-picker-indicator {
-    opacity: 0.55;
-    cursor: pointer;
   }
 
   /* Dropdowns

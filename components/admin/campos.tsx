@@ -55,7 +55,12 @@ export function Texto({
   ...resto
 }: Base & {
   valor?: string | number | null;
-  tipo?: "text" | "date" | "time" | "url" | "email" | "number" | "password";
+  /**
+   * `date` e `time` não entram aqui de propósito: a máscara desses campos usa a
+   * cor do texto e precisa mudar conforme estejam vazios ou preenchidos. Use
+   * `CampoData` / `CampoHora` de components/admin/campo-data.tsx.
+   */
+  tipo?: "text" | "url" | "email" | "number" | "password";
 } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <Envolve rotulo={rotulo} ajuda={ajuda} obrigatorio={obrigatorio} htmlFor={nome}>

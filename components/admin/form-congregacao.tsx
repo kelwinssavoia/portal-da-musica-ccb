@@ -1,6 +1,7 @@
 "use client";
 
 import { AreaTexto, Marcar, Selecao, Texto } from "@/components/admin/campos";
+import { CampoHora, horaParaInput } from "@/components/admin/campo-data";
 import { CampoUpload } from "@/components/admin/campo-upload";
 import { FormExcluir, FormRegistro } from "@/components/admin/form-registro";
 import {
@@ -15,11 +16,6 @@ import type { Cidade } from "@/lib/tipos-banco";
 
 const OPCOES_DIA = DIAS.map((nome, i) => ({ valor: i, nome }));
 const OPCOES_ORDINAL = [1, 2, 3, 4, 5].map((o) => ({ valor: o, nome: ORDINAIS[o] }));
-
-/** `"19:30:00"` → `"19:30"`, que é o que o input time aceita. */
-function paraInput(hora: string | null): string {
-  return hora ? hora.slice(0, 5) : "";
-}
 
 export function FormCongregacao({
   congregacao: c,
@@ -103,12 +99,12 @@ export function FormCongregacao({
                   {nome}
                 </label>
 
-                <input
-                  type="time"
-                  name={`culto_hora_${dow}`}
-                  defaultValue={paraInput(culto?.hora ?? null)}
-                  aria-label={`Hora do culto de ${nome}`}
-                  className="border-cinza rounded-portal text-azul border bg-white px-3 py-1.5 text-[13px]"
+                <CampoHora
+                  nome={`culto_hora_${dow}`}
+                  rotulo={`Hora do culto de ${nome}`}
+                  rotuloOculto
+                  valor={horaParaInput(culto?.hora)}
+                  className="w-[130px]"
                 />
               </div>
             );
@@ -136,12 +132,7 @@ export function FormCongregacao({
             opcoes={OPCOES_DIA}
             valor={c?.ensaio_dow}
           />
-          <Texto
-            nome="ensaio_hora"
-            rotulo="Hora"
-            tipo="time"
-            valor={paraInput(c?.ensaio_hora ?? null)}
-          />
+          <CampoHora nome="ensaio_hora" rotulo="Hora" valor={horaParaInput(c?.ensaio_hora)} />
         </div>
 
         <div className="mt-4">

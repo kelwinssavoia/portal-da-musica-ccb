@@ -1,6 +1,7 @@
 "use client";
 
 import { AreaTexto, Marcar, Selecao, Texto } from "@/components/admin/campos";
+import { CampoData, CampoHora, horaParaInput } from "@/components/admin/campo-data";
 import { FormExcluir, FormRegistro } from "@/components/admin/form-registro";
 import {
   excluirEvento,
@@ -9,10 +10,6 @@ import {
   salvarExcecao,
 } from "@/app/admin/(painel)/eventos/acoes";
 import type { Congregacao, EnsaioExcecao, EventoRow, TipoEvento } from "@/lib/tipos-banco";
-
-function paraInput(hora: string | null | undefined): string {
-  return hora ? hora.slice(0, 5) : "";
-}
 
 export function FormEvento({
   evento: e,
@@ -51,8 +48,8 @@ export function FormEvento({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <Texto nome="data" rotulo="Data" tipo="date" obrigatorio valor={e?.data} />
-        <Texto nome="hora" rotulo="Hora" tipo="time" valor={paraInput(e?.hora)} />
+        <CampoData nome="data" rotulo="Data" obrigatorio valor={e?.data} />
+        <CampoHora nome="hora" rotulo="Hora" valor={horaParaInput(e?.hora)} />
         <Selecao
           nome="congregacao_id"
           rotulo="Onde acontece"
@@ -102,10 +99,9 @@ export function FormExcecao({
           opcoes={comEnsaio.map((c) => ({ valor: c.id, nome: c.nome }))}
           valor={excecao?.congregacao_id}
         />
-        <Texto
+        <CampoData
           nome="data_original"
           rotulo="Data do ensaio que muda"
-          tipo="date"
           obrigatorio
           valor={excecao?.data_original}
           ajuda="A data que o padrão geraria."
@@ -119,14 +115,13 @@ export function FormExcecao({
       />
 
       <div className="grid gap-4 sm:grid-cols-2">
-        <Texto
+        <CampoData
           nome="nova_data"
           rotulo="Nova data"
-          tipo="date"
           valor={excecao?.nova_data}
           ajuda="Preencha só se foi remanejado."
         />
-        <Texto nome="nova_hora" rotulo="Nova hora" tipo="time" valor={paraInput(excecao?.nova_hora)} />
+        <CampoHora nome="nova_hora" rotulo="Nova hora" valor={horaParaInput(excecao?.nova_hora)} />
       </div>
 
       <Texto nome="motivo" rotulo="Motivo" valor={excecao?.motivo} />
