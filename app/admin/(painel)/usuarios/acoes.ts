@@ -3,8 +3,8 @@
 import { z } from "zod";
 
 import { acao, textoObrigatorio, textoOpcional, type Resultado } from "@/lib/acoes";
-import { siteUrl } from "@/lib/ajustes";
 import { AREAS_CMS } from "@/lib/areas";
+import { SENHA_MINIMA, senhaTemporaria } from "@/lib/senha";
 import { clienteAdmin } from "@/lib/supabase/admin";
 import type { PortalArea } from "@/lib/tipos-banco";
 
@@ -15,36 +15,48 @@ function areasDoFormulario(dados: FormData): PortalArea[] {
   return AREAS_VALIDAS.filter((a) => dados.get(`area_${a}`) === "sim");
 }
 
-const esquemaConvite = z.object({
-  email: z.string().email({ message: "informe um e-mail válido" }),
+const esquemaCriar = z.object({
+  email: z.string().trim().email({ message: "informe um e-mail válido" }),
   nome: textoOpcional,
   papel: z.enum(["admin", "editor"]),
+  senha: z
+    .string()
+    .optional()
+    .transform((s) => (s ?? "").trim())
+    .refine((s) => s === "" || s.length >= SENHA_MINIMA, {
+      message: `a senha precisa ter ao menos ${SENHA_MINIMA} caracteres`,
+    }),
 });
 
 /**
- * Convida um irmão para manter o portal.
+ * Cria um acesso ao CMS com e-mail e senha.
  *
- * Usa a chave secreta (única operação do portal que precisa dela), porque criar
- * usuário é API de administração do Auth. Roda só no servidor.
+ * Nenhum e-mail é enviado: o portal não depende de serviço de e-mail. Quem cria
+ * passa a senha provisória pelo canal que já usa com a secretaria, e a pessoa
+ * troca em /admin/senha.
  */
-export async function convidarUsuario(_: unknown, dados: FormData): Promise<Resultado> {
+export async function criarAcesso(_: unknown, dados: FormData): Promise<Resultado> {
   const areas = areasDoFormulario(dados);
 
-  return acao("usuarios", esquemaConvite, dados, async (v, supabase) => {
+  return acao("usuarios", esquemaCriar, dados, async (v) => {
     if (v.papel === "editor" && areas.length === 0) {
       throw new Error("Escolha ao menos uma área para o editor, senão ele entra e não edita nada.");
     }
 
+    const senha = v.senha === "" ? senhaTemporaria() : v.senha;
     const admin = clienteAdmin();
 
-    const { data, error } = await admin.auth.admin.inviteUserByEmail(v.email, {
-      redirectTo: `${siteUrl()}/admin/auth/confirmar`,
-      data: v.nome ? { nome: v.nome } : undefined,
+    // `email_confirm: true` porque não há e-mail de confirmação para clicar.
+    const { data, error } = await admin.auth.admin.createUser({
+      email: v.email,
+      password: senha,
+      email_confirm: true,
+      user_metadata: v.nome ? { nome: v.nome } : undefined,
     });
 
     if (error) throw error;
     const id = data.user?.id;
-    if (!id) throw new Error("O convite foi criado, mas o usuário não voltou. Tente de novo.");
+    if (!id) throw new Error("O acesso não foi criado. Tente de novo.");
 
     // O trigger cria o perfil inativo; aqui ele é liberado com o papel escolhido.
     const { error: erroPerfil } = await admin
@@ -62,11 +74,30 @@ export async function convidarUsuario(_: unknown, dados: FormData): Promise<Resu
       if (erroAreas) throw erroAreas;
     }
 
-    // `supabase` (com RLS) não é usado aqui de propósito: convite exige a API
-    // de administração. A permissão de quem convida foi conferida por acao().
-    void supabase;
+    return `Acesso criado para ${v.email}. Senha provisória: ${senha} — passe para a pessoa e peça que troque em "Minha senha".`;
+  });
+}
 
-    return `Convite enviado para ${v.email}. Ele entra pelo link do e-mail.`;
+const esquemaSenha = z.object({
+  id: textoObrigatorio("Usuário"),
+  senha: z
+    .string()
+    .optional()
+    .transform((s) => (s ?? "").trim())
+    .refine((s) => s === "" || s.length >= SENHA_MINIMA, {
+      message: `a senha precisa ter ao menos ${SENHA_MINIMA} caracteres`,
+    }),
+});
+
+/** Define uma senha nova para outra pessoa. É o "esqueci minha senha" do portal. */
+export async function definirSenha(_: unknown, dados: FormData): Promise<Resultado> {
+  return acao("usuarios", esquemaSenha, dados, async (v) => {
+    const senha = v.senha === "" ? senhaTemporaria() : v.senha;
+
+    const { error } = await clienteAdmin().auth.admin.updateUserById(v.id, { password: senha });
+    if (error) throw error;
+
+    return `Senha redefinida. Nova senha provisória: ${senha} — passe para a pessoa e peça que troque em "Minha senha".`;
   });
 }
 
@@ -117,8 +148,7 @@ export async function removerUsuario(_: unknown, dados: FormData): Promise<Resul
       const { data: eu } = await supabase.auth.getUser();
       if (eu.user?.id === v.id) throw new Error("Você não pode remover a si mesmo.");
 
-      const admin = clienteAdmin();
-      const { error } = await admin.auth.admin.deleteUser(v.id);
+      const { error } = await clienteAdmin().auth.admin.deleteUser(v.id);
       if (error) throw error;
 
       return "Acesso removido.";

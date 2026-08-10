@@ -1,9 +1,13 @@
 /**
  * Campos de formulário do CMS.
  *
- * Tudo `<input>`/`<select>` nativo, ligado a Server Action por `<form action>`:
- * o formulário envia mesmo com JavaScript desligado, e a validação de verdade
- * acontece no servidor com Zod.
+ * Tudo `<input>`/`<select>` nativo, ligado a Server Action por `<form action>`.
+ * A validação de verdade acontece no servidor, com Zod — o `required` do HTML é
+ * só conveniência.
+ *
+ * O CMS **exige JavaScript**: Server Action depende do runtime do React para
+ * resolver a ação. Isso vale só para `/admin`; o portal público continua
+ * inteiro renderizado no servidor.
  */
 
 type Base = {
@@ -51,7 +55,7 @@ export function Texto({
   ...resto
 }: Base & {
   valor?: string | number | null;
-  tipo?: "text" | "date" | "time" | "url" | "email" | "number";
+  tipo?: "text" | "date" | "time" | "url" | "email" | "number" | "password";
 } & React.InputHTMLAttributes<HTMLInputElement>) {
   return (
     <Envolve rotulo={rotulo} ajuda={ajuda} obrigatorio={obrigatorio} htmlFor={nome}>

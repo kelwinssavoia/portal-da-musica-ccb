@@ -1,4 +1,4 @@
-import { FormConvite, FormPermissoes } from "@/components/admin/form-usuario";
+import { FormDefinirSenha, FormNovoAcesso, FormPermissoes } from "@/components/admin/form-usuario";
 import { AREAS_CMS } from "@/lib/areas";
 import { exigirArea } from "@/lib/permissoes";
 import { clienteServidor } from "@/lib/supabase/servidor";
@@ -27,17 +27,18 @@ export default async function AdminUsuarios() {
         <h1 className="text-xl">Usuários</h1>
         <p className="mt-1 text-[13px]">
           Quem pode manter o portal, e o que cada um pode editar. Não existe cadastro aberto — só
-          entra quem for convidado aqui.
+          entra quem for cadastrado aqui.
         </p>
       </div>
 
       <section className="bg-superficie shadow-portal rounded-portal p-5">
-        <h2 className="text-base">Convidar</h2>
+        <h2 className="text-base">Novo acesso</h2>
         <p className="mt-1 text-[12.5px]">
-          A pessoa recebe um e-mail com link de acesso. Não há senha para criar nem lembrar.
+          O portal não envia e-mail. Ao criar, ele mostra a senha provisória — passe para a pessoa
+          pelo canal que vocês já usam e peça que ela troque em “Minha senha”.
         </p>
         <div className="mt-4">
-          <FormConvite />
+          <FormNovoAcesso />
         </div>
       </section>
 
@@ -66,6 +67,14 @@ export default async function AdminUsuarios() {
               <div className="border-cinza border-t p-4">
                 <p className="mb-4 text-[12px] opacity-75">{p.email}</p>
                 <FormPermissoes perfil={p} areas={dele} souEu={souEu} />
+
+                <div className="border-cinza mt-5 border-t pt-4">
+                  <h3 className="text-[12.5px] font-bold">Redefinir a senha desta pessoa</h3>
+                  <p className="mt-1 mb-3 text-[11.5px] opacity-70">
+                    Use quando ela esquecer a senha. Não há recuperação por e-mail.
+                  </p>
+                  <FormDefinirSenha id={p.id} />
+                </div>
               </div>
             </details>
           );

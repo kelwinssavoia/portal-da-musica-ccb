@@ -32,6 +32,9 @@ export default async function PainelLayout({ children }: LayoutProps<"/admin">) 
               {sessao.perfil.nome || sessao.perfil.email}
               {sessao.perfil.papel === "admin" && " · admin"}
             </span>
+            <Link href="/admin/senha" className="text-white underline">
+              Minha senha
+            </Link>
             <Link href="/" className="text-white underline">
               Ver portal
             </Link>

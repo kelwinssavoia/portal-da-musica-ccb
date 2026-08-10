@@ -115,19 +115,21 @@ Abra <http://localhost:3000>. O portal deve aparecer com os textos genéricos
 
 ---
 
-## 4. Fechar o cadastro e liberar o login
+## 4. Fechar o cadastro
 
-No painel do Supabase:
+No painel do Supabase, em **Authentication → Sign In / Providers**:
 
-1. **Authentication → Sign In / Providers → Email**: deixe **Email** habilitado.
-2. **Authentication → Sign In / Providers**: desligue **Allow new users to sign
-   up**. Sem isso, qualquer pessoa poderia criar conta e tentar entrar na área de
-   manutenção.
-3. **Authentication → URL Configuration**:
-   - **Site URL**: por enquanto `http://localhost:3000`.
-   - **Redirect URLs**: acrescente `http://localhost:3000/**`.
+1. Deixe **Email** habilitado — é o tipo de identidade usado no login.
+2. Desligue **Allow new users to sign up**. Sem isso, qualquer pessoa poderia
+   criar conta e tentar entrar na área de manutenção.
+3. Em **Confirm email**, deixe desligado: o portal cria os acessos já
+   confirmados, porque **não envia e-mail nenhum**.
 
-Você volta aqui no passo 7 para trocar pelo endereço de produção.
+> **O portal não depende de serviço de e-mail.** O login é por e-mail e senha, e
+> quem cria um acesso recebe a senha provisória na tela, para passar à pessoa
+> pelo canal que a secretaria já usa. Isso elimina SMTP, domínio de remetente,
+> template de mensagem e limite de envio — quatro coisas que dariam trabalho e
+> não agregam nada ao portal.
 
 ---
 
@@ -136,7 +138,8 @@ Você volta aqui no passo 7 para trocar pelo endereço de produção.
 Este é o passo onde mais gente trava. A ordem importa.
 
 1. **Authentication → Users → Add user → Create new user**.
-2. Informe seu e-mail e marque **Auto Confirm User**.
+2. Informe seu e-mail, defina uma senha (mínimo 10 caracteres) e marque
+   **Auto Confirm User**.
 3. Agora abra **SQL Editor** e rode, trocando pelo seu e-mail:
 
 ```sql
@@ -196,18 +199,13 @@ npx vercel git connect --yes
 
 ---
 
-## 7. Fechar o ciclo do login
+## 7. Testar o acesso
 
-Volte ao Supabase, em **Authentication → URL Configuration**, e troque:
+Abra `https://seu-portal.vercel.app/admin` e entre com o e-mail e a senha do
+passo 5. Você deve cair no painel de manutenção.
 
-- **Site URL**: `https://seu-portal.vercel.app`
-- **Redirect URLs**: acrescente `https://seu-portal.vercel.app/**`
-
-**Sem isso o login não funciona**: o link do e-mail tenta voltar para um
-endereço que o Supabase não reconhece, e a pessoa nunca entra.
-
-Teste de verdade: abra `https://seu-portal.vercel.app/admin`, informe seu
-e-mail, e confira se o link que chega leva você para dentro do painel.
+Não há nada a configurar no Supabase para o login funcionar em produção — sem
+e-mail no caminho, não existem "Redirect URLs" para acertar.
 
 ---
 
@@ -224,7 +222,9 @@ Sugestão de ordem:
 4. **Dúvidas** — as respostas do seed são genéricas. **Reescreva todas** com o
    que vale na sua região.
 5. **Eventos** — ensaios regionais, testes e reuniões.
-6. **Usuários** — convide os irmãos da secretaria, cada um com as áreas dele.
+6. **Usuários** — cadastre os irmãos da secretaria, cada um com as áreas dele.
+   O portal mostra a senha provisória de cada um na hora; passe para a pessoa e
+   peça que ela troque em **Minha senha**.
 
 > **Confira as datas de ensaio antes de divulgar o portal.** O calendário é
 > gerado do padrão que você cadastrar; um ordinal errado espalha data errada para
@@ -251,7 +251,8 @@ descrição de arquivo, nem em resposta de dúvida.
 | Sintoma | Causa mais provável |
 | --- | --- |
 | Portal mostra "Sua Região" em produção | Variáveis de ambiente não cadastradas na Vercel, ou publicou antes de cadastrá-las |
-| O link do e-mail não entra no painel | **Redirect URLs** no Supabase sem o endereço de produção (passo 7) |
+| "E-mail ou senha incorretos" mesmo com a senha certa | Senha com menos de 10 caracteres, ou usuário criado sem **Auto Confirm User** |
+| Alguém esqueceu a senha | Um admin redefine em **Usuários → a pessoa → Redefinir senha**. Não há recuperação por e-mail |
 | "Somente administradores alteram papel" | Migração `20260810120000` não aplicada (passo 5) |
 | Entrei, mas o menu está vazio | Perfil ativo, porém sem áreas. Um admin precisa atribuir as áreas em **Usuários** |
 | Salvei e o portal não mudou | Confira se salvou na área certa; se persistir, abra uma issue |

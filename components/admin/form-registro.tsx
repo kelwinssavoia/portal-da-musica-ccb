@@ -11,8 +11,12 @@ type Estado = Resultado | null;
  * Formulário de registro do CMS.
  *
  * Usa `useActionState`, então mostra o resultado da Server Action sem
- * recarregar. Sem JavaScript o `<form action>` ainda envia e a página recarrega
- * com o dado salvo — só não mostra a mensagem de confirmação.
+ * recarregar a página.
+ *
+ * Requer JavaScript: sem o runtime do React o envio falha com "Failed to find
+ * Server Action". É aceitável no CMS, que é usado por poucas pessoas em
+ * navegador normal — mas não seria no portal público, e é por isso que lá nada
+ * depende de Server Action.
  */
 export function FormRegistro({
   acao,

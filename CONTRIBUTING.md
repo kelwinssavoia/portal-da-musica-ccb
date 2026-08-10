@@ -38,8 +38,10 @@ npm run build      # o build também roda a checagem de tipos
   programador.
 - **Server Components por padrão.** `"use client"` só quando a tela precisa de
   interação de verdade (modal, alternância de visão).
-- **Conteúdo essencial renderizado no servidor.** Lista, calendário e arquivos
-  precisam aparecer com o JavaScript desligado.
+- **Conteúdo essencial do portal público renderizado no servidor.** Lista,
+  calendário e arquivos precisam aparecer com o JavaScript desligado. A busca é
+  form GET justamente por isso. O CMS (`/admin`) é exceção declarada: Server
+  Action exige JavaScript.
 - **Cores e tipografia só pelos tokens** do `app/globals.css`. Nada de cor
   solta no componente.
 - **Ícones em SVG de linha** (`components/icones.tsx`). Nunca emoji.

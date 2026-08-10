@@ -478,21 +478,41 @@ conveniência de interface — a **garantia** é a RLS no banco.
 
 ## 7. Autenticação
 
-- **Supabase Auth com link mágico por e-mail** (sem senha). É o fluxo mais
-  simples para quem vai manter o portal e elimina senha fraca/reaproveitada.
-- **Cadastro público desativado** no painel do Supabase. Usuário novo só entra
-  por convite de um admin, em `/admin/usuarios`.
-- Convite: Server Action chama `auth.admin.inviteUserByEmail` com a chave
-  secreta (só no servidor), e já grava `perfis` + `perfil_areas`.
-- Sessão em cookies via `@supabase/ssr`; `proxy.ts` (a convenção que
-  substituiu `middleware.ts` no Next 16) renova o token e protege tudo sob
-  `/admin`, redirecionando para `/admin/login`.
-- Trigger `on auth.users insert` cria a linha em `perfis` com `papel='editor'`
-  e `ativo=false` — quem não foi convidado não edita nada mesmo que consiga
-  autenticar.
-- O primeiro admin é criado no `seed.sql` da instalação (§9.3).
+- **E-mail e senha.** O portal **não envia e-mail nenhum** e não depende de
+  serviço de e-mail: sem SMTP, sem domínio de remetente, sem template, sem
+  limite de envio.
+- **Cadastro público desativado** no painel do Supabase. Acesso novo só é criado
+  por um admin em `/admin/usuarios`.
+- **Criação de acesso:** o admin informa e-mail, papel e áreas; o portal cria o
+  usuário já confirmado (`email_confirm`) e **mostra a senha provisória na
+  tela**, para o admin passar à pessoa pelo canal que a secretaria já usa. Quem
+  entra troca em `/admin/senha`.
+- **Esqueceu a senha:** um admin redefine em `/admin/usuarios`. Não existe
+  recuperação por e-mail — é o preço, aceito, de não depender de e-mail.
+- Senha mínima de **10 caracteres**, exigida no formulário e no próprio Supabase.
+- Sessão em cookies via `@supabase/ssr`; `proxy.ts` (a convenção que substituiu
+  `middleware.ts` no Next 16) renova o token e protege tudo sob `/admin`,
+  redirecionando para `/admin/login`.
+- Trigger `on auth.users insert` cria a linha em `perfis` com `papel='editor'` e
+  `ativo=false` — quem não foi cadastrado por um admin não edita nada, mesmo que
+  consiga autenticar. O login confere `ativo` e encerra a sessão se for falso.
+- O primeiro admin é criado na instalação (§9.3), com um `UPDATE` direto.
 
----
+### 7.1 Por que não link mágico
+
+A primeira versão usava link mágico por e-mail. Foi abandonada por dois motivos,
+nessa ordem:
+
+1. **O link de convite não completava o login.** O fluxo PKCE guarda um
+   verificador no navegador que iniciou o pedido; um link clicado a partir do
+   e-mail não tem esse verificador, então a troca do código falha.
+2. **Customizar o e-mail exige plano pago ou SMTP próprio.** O plano gratuito do
+   Supabase recusa alterar template e remetente, então a mensagem chegaria em
+   inglês, de um endereço `@mail.app.supabase.io`, com limite de poucos envios
+   por hora.
+
+Senha resolve os dois e tira uma dependência externa do caminho crítico de uma
+ferramenta que precisa funcionar sempre.
 
 ## 8. Renderização, cache e performance
 
