@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Mesmo ícone do portal anterior: quadrado azul da CCB com a clave de sol.
+       Marcador neutro — o emblema oficial da CCB não é usado. -->
+  <rect width="100" height="100" fill="#033d60"/>
+  <text x="50" y="50" font-size="68" text-anchor="middle" dominant-baseline="central"
+        fill="#d4d9e2" font-family="Georgia, 'Times New Roman', serif">&#119070;</text>
+</svg>
