@@ -68,7 +68,7 @@ Em construção, por fases (ver [§12 do documento de arquitetura](docs/ARQUITET
 - [x] **Fase 2** — Supabase: schema, RLS, buckets
 - [x] **Fase 3** — Congregações, Secretaria e Início lendo do banco
 - [x] **Fase 4** — Ensaios e Calendário
-- [ ] **Fase 5** — Circulares e busca global
+- [x] **Fase 5** — Circulares e busca global
 - [ ] **Fase 6** — CMS
 - [ ] **Fase 7** — usuários e permissões
 - [ ] **Fase 8** — importação do portal antigo e produção

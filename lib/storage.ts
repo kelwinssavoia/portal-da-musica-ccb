@@ -12,14 +12,24 @@ export function urlPublica(bucket: string, caminho: string, versao?: number): st
   return versao && versao > 1 ? `${base}?v=${versao}` : base;
 }
 
-/** Endereço do arquivo de um item, seja ele hospedado aqui ou link externo. */
-export function urlDoArquivo(item: {
+type ItemComArquivo = {
   origem: "upload" | "link";
   arquivo_path: string | null;
   url: string | null;
   versao?: number;
-}): string | null {
+};
+
+/** Endereço do arquivo de um item, seja ele hospedado aqui ou link externo. */
+function urlDe(bucket: string, item: ItemComArquivo): string | null {
   if (item.origem === "link") return item.url;
   if (!item.arquivo_path) return null;
-  return urlPublica("arquivos", item.arquivo_path, item.versao);
+  return urlPublica(bucket, item.arquivo_path, item.versao);
+}
+
+export function urlDoArquivo(item: ItemComArquivo): string | null {
+  return urlDe("arquivos", item);
+}
+
+export function urlDaCircular(item: ItemComArquivo): string | null {
+  return urlDe("circulares", item);
 }

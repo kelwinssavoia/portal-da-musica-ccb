@@ -3,7 +3,8 @@ import Link from "next/link";
 
 import { GradeCalendario, type EventoNaGrade } from "@/components/site/grade-calendario";
 import { Bolinha, Selo } from "@/components/site/selo";
-import { MESES, dataLonga, formatarHora, hojeISO } from "@/lib/datas";
+import { MESES, dataLonga, formatarHora } from "@/lib/datas";
+import { hoje as hojeDaRegional } from "@/lib/hoje";
 import { eventosDoPeriodo, listarTiposEvento } from "@/lib/dados/eventos";
 import { destaqueDe } from "@/lib/destaque";
 import { diasNoMes, iso, partesISO } from "@/lib/ensaios";
@@ -41,7 +42,7 @@ function paramMes(ano: number, mes: number): string {
 
 async function Conteudo({ searchParams }: { searchParams: PageProps<"/calendario">["searchParams"] }) {
   const params = await searchParams;
-  const hoje = hojeISO();
+  const hoje = await hojeDaRegional();
   const { ano, mes } = mesPedido(params.mes, hoje);
   const agenda = params.modo === "agenda";
 

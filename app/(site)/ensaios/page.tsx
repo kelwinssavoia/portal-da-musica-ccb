@@ -6,7 +6,7 @@ import { Selo } from "@/components/site/selo";
 import { dataCurta, DIAS, formatarHora, frequenciaEnsaio, ORDINAIS, padraoEnsaio } from "@/lib/datas";
 import { comunsComEnsaio, ensaiosRegionais, type ComumComEnsaio } from "@/lib/dados/eventos";
 import { classeDestaque, destaqueDe } from "@/lib/destaque";
-import { hojeISO } from "@/lib/datas";
+import { hoje as hojeDaRegional } from "@/lib/hoje";
 import { partesISO } from "@/lib/ensaios";
 
 export const metadata = {
@@ -41,7 +41,7 @@ async function Conteudo({ searchParams }: { searchParams: PageProps<"/ensaios">[
   const { visao } = await searchParams;
   const atual = typeof visao === "string" && VISOES.some((v) => v.valor === visao) ? visao : "comum";
 
-  const hoje = hojeISO();
+  const hoje = await hojeDaRegional();
   const { ano, mes } = partesISO(hoje);
   const fimDoAno = `${ano + 1}-12-31`;
 
