@@ -11,6 +11,8 @@ regional pode rodar a própria instância, com os próprios dados.
 > trabalho de secretaria. Não é um canal oficial da Congregação Cristã no
 > Brasil, e nenhum emblema oficial é usado.
 
+No ar (Região Bragantina): <https://portal-da-musica-ccb.vercel.app>
+
 ## O que ele faz
 
 | Área | O que mostra |
@@ -55,10 +57,15 @@ Abra <http://localhost:3000>.
 
 ## Usar na sua região
 
-O guia completo de instalação — criar o projeto Supabase, aplicar o schema,
-semear os dados e publicar na Vercel — está em
-**[docs/ARQUITETURA.md §9](docs/ARQUITETURA.md)**, junto com o modelo de dados,
-as regras de permissão e as decisões de projeto.
+**[docs/INSTALACAO.md](docs/INSTALACAO.md)** — guia passo a passo, do zero ao
+portal no ar em cerca de meia hora. Não precisa saber programar.
+
+Cada regional roda a própria instância: banco próprio, arquivos próprios,
+endereço próprio. Custo zero no plano gratuito da Vercel e do Supabase.
+
+Para entender como o portal é feito por dentro — modelo de dados, regras de
+permissão, recorrência dos ensaios e as decisões de projeto — veja
+**[docs/ARQUITETURA.md](docs/ARQUITETURA.md)**.
 
 ## Estado atual
 
@@ -71,8 +78,8 @@ Em construção, por fases (ver [§12 do documento de arquitetura](docs/ARQUITET
 - [x] **Fase 5** — Circulares e busca global
 - [x] **Fase 6** — CMS
 - [x] **Fase 7** — usuários e permissões
-- [ ] **Fase 8** — importação do portal antigo e produção
-- [ ] **Fase 9** — guia de adoção
+- [x] **Fase 8** — produção
+- [x] **Fase 9** — guia de adoção
 
 ## Contribuindo
 

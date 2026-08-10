@@ -599,7 +599,7 @@ promova:
 update public.perfis set papel = 'admin', ativo = true where email = 'voce@exemplo.com';
 ```
 
-### 9.4 (Opcional) Migrar do portal antigo de planilha
+### 9.4 (Opcional, não implementado) Migrar do portal antigo de planilha
 
 `scripts/importar-planilha.ts` lê as abas `Arquivos`, `Duvidas`, `Categorias` e
 `Ajustes` do portal em planilha e escreve nas tabelas correspondentes. Use uma
@@ -689,8 +689,8 @@ portal-musica/
 | 5 | Circulares e busca global. |
 | 6 | CMS: login por link mágico, CRUD das áreas, **upload de arquivos e fotos com substituição versionada**, revalidação por tag. |
 | 7 | `/admin/usuarios`: convite, papel e áreas. |
-| 8 | Importador da planilha (**baixa os arquivos dos links atuais e sobe para o bucket**), deploy de produção, migração do domínio atual. |
-| 9 | README de adoção, `CONTRIBUTING.md`, e abertura do repositório. |
+| 8 | Deploy de produção. **Importação dos arquivos do OneDrive foi descartada** — as fichas seguem como link externo até a secretaria decidir migrá-las pelo CMS. |
+| 9 | `docs/INSTALACAO.md`, README de adoção, `CONTRIBUTING.md`, repositório público. |
 
 ---
 
