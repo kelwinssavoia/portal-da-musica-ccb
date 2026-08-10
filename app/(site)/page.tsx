@@ -8,42 +8,53 @@ import {
   IconePasta,
 } from "@/components/icones";
 import { getAjustes } from "@/lib/ajustes";
+import { contarConteudo } from "@/lib/dados/secretaria";
 
-const ATALHOS = [
-  {
-    href: "/congregacoes",
-    nome: "Congregações",
-    desc: "Endereços, cultos e ensaios locais.",
-    Icone: IconeIgreja,
-  },
-  {
-    href: "/ensaios",
-    nome: "Ensaios",
-    desc: "Quando é o ensaio de cada comum.",
-    Icone: IconeEnsaio,
-  },
-  {
-    href: "/calendario",
-    nome: "Calendário",
-    desc: "Ensaios, testes e reuniões do mês.",
-    Icone: IconeCalendario,
-  },
-  {
-    href: "/circulares",
-    nome: "Circulares",
-    desc: "Comunicados oficiais da regional.",
-    Icone: IconeCircular,
-  },
-  {
-    href: "/secretaria",
-    nome: "Secretaria",
-    desc: "Fichas, calendários e dúvidas.",
-    Icone: IconePasta,
-  },
-];
+/** Plural correto sem depender de biblioteca. */
+function contagem(n: number, singular: string, plural: string): string {
+  return `${n} ${n === 1 ? singular : plural}`;
+}
 
 export default async function Inicio() {
-  const { titulo, heroTexto } = await getAjustes();
+  const [{ titulo, heroTexto }, totais] = await Promise.all([getAjustes(), contarConteudo()]);
+
+  const atalhos = [
+    {
+      href: "/congregacoes",
+      nome: "Congregações",
+      desc: "Endereços, cultos e ensaios locais.",
+      Icone: IconeIgreja,
+      conta: contagem(totais.congregacoes, "congregação", "congregações"),
+    },
+    {
+      href: "/ensaios",
+      nome: "Ensaios",
+      desc: "Quando é o ensaio de cada comum.",
+      Icone: IconeEnsaio,
+      conta: "por comum e por dia da semana",
+    },
+    {
+      href: "/calendario",
+      nome: "Calendário",
+      desc: "Ensaios, testes e reuniões do mês.",
+      Icone: IconeCalendario,
+      conta: "grade mensal e agenda",
+    },
+    {
+      href: "/circulares",
+      nome: "Circulares",
+      desc: "Comunicados oficiais da regional.",
+      Icone: IconeCircular,
+      conta: contagem(totais.circulares, "publicada", "publicadas"),
+    },
+    {
+      href: "/secretaria",
+      nome: "Secretaria",
+      desc: "Fichas, calendários e dúvidas.",
+      Icone: IconePasta,
+      conta: contagem(totais.arquivos, "arquivo", "arquivos"),
+    },
+  ];
 
   return (
     <div className="flex flex-col gap-8">
@@ -58,16 +69,17 @@ export default async function Inicio() {
       <section>
         <h2 className="text-lg">Atalhos</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {ATALHOS.map(({ href, nome, desc, Icone }) => (
+          {atalhos.map(({ href, nome, desc, Icone, conta }) => (
             <Link
               key={href}
               href={href}
-              className="bg-superficie border-azul shadow-portal flex gap-3 rounded-r-portal border-l-4 p-4 no-underline hover:no-underline"
+              className="bg-superficie border-azul shadow-portal rounded-r-portal flex gap-3 border-l-4 p-4 no-underline hover:no-underline"
             >
               <Icone className="text-azul mt-0.5 size-5 shrink-0" />
               <span>
                 <span className="text-azul block text-sm font-bold">{nome}</span>
                 <span className="block text-[12.5px]">{desc}</span>
+                <span className="mt-1 block text-[11.5px] opacity-70">{conta}</span>
               </span>
             </Link>
           ))}

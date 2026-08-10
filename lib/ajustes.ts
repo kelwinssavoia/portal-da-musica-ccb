@@ -1,3 +1,5 @@
+import { cacheLife, cacheTag } from "next/cache";
+
 import { clientePublico } from "@/lib/supabase/publico";
 import { supabaseConfigurado } from "@/lib/supabase/config";
 
@@ -52,6 +54,10 @@ const CAMPOS: Record<string, keyof Ajustes> = {
 };
 
 export async function getAjustes(): Promise<Ajustes> {
+  "use cache";
+  cacheTag("ajustes");
+  cacheLife("hours");
+
   if (!supabaseConfigurado()) return PADRAO;
 
   try {

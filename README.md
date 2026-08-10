@@ -59,8 +59,8 @@ as regras de permissão e as decisões de projeto.
 Em construção, por fases (ver [§12 do documento de arquitetura](docs/ARQUITETURA.md)).
 
 - [x] **Fase 1** — layout base com a identidade visual da CCB
-- [ ] **Fase 2** — Supabase: schema, RLS, buckets
-- [ ] **Fase 3** — Congregações, Secretaria e Início lendo do banco
+- [x] **Fase 2** — Supabase: schema, RLS, buckets
+- [x] **Fase 3** — Congregações, Secretaria e Início lendo do banco
 - [ ] **Fase 4** — Ensaios e Calendário
 - [ ] **Fase 5** — Circulares e busca global
 - [ ] **Fase 6** — CMS
