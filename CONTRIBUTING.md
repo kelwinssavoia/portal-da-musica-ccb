@@ -64,3 +64,18 @@ Não precisa de fork "para contribuir": clone, rode e use. Se a adaptação
 exigiu mexer no código, isso costuma ser sinal de que faltou um ajuste
 configurável — abra uma issue contando, que é exatamente o tipo de melhoria que
 o projeto quer.
+
+## Supabase pela linha de comando (opcional)
+
+O repositório traz um `.mcp.json` que liga o [MCP do
+Supabase](https://github.com/supabase-community/supabase-mcp) ao projeto, para
+quem usa um agente de código. Ele lê o token de uma **variável de ambiente** —
+nenhum segredo é versionado:
+
+```bash
+# token pessoal em https://supabase.com/dashboard/account/tokens
+export SUPABASE_ACCESS_TOKEN=sbp_...
+```
+
+Exporte antes de abrir o agente. Sem a variável, o servidor simplesmente não
+conecta e o resto do projeto funciona normalmente.
