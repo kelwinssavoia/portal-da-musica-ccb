@@ -1,6 +1,7 @@
 "use client";
 
-import { AreaTexto, Arquivo, Marcar, Selecao, Texto } from "@/components/admin/campos";
+import { AreaTexto, Marcar, Selecao, Texto } from "@/components/admin/campos";
+import { CampoUpload } from "@/components/admin/campo-upload";
 import { FormExcluir, FormRegistro } from "@/components/admin/form-registro";
 import {
   excluirArquivo,
@@ -59,15 +60,16 @@ export function FormArquivo({
         />
       </div>
 
-      <Arquivo
+      <CampoUpload
         nome="arquivo"
         rotulo="Arquivo"
+        bucket="arquivos"
         aceita="application/pdf,image/jpeg,image/png,.xlsx,.docx"
-        ajuda={
-          a?.origem === "upload"
-            ? `Versão ${a.versao} no portal (${a.arquivo_nome ?? "arquivo"}). Enviar outro substitui mantendo o mesmo endereço — quem já tem o link recebe a versão nova.`
-            : "Até 25 MB. O portal hospeda o arquivo; não precisa do Drive."
-        }
+        limiteMb={25}
+        caminhoAtual={a?.origem === "upload" ? a.arquivo_path : null}
+        nomeAtual={a?.arquivo_nome}
+        versaoAtual={a?.versao}
+        ajuda="Até 25 MB. O portal hospeda o arquivo; não precisa do Drive."
       />
 
       <Texto

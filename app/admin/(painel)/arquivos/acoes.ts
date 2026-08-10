@@ -6,12 +6,12 @@ import {
   acao,
   inteiro,
   marcado,
-  paraSlug,
   textoObrigatorio,
   textoOpcional,
   type Resultado,
 } from "@/lib/acoes";
-import { LIMITE_ARQUIVO, apagarArquivo, extensaoDe, subirArquivo, temArquivo } from "@/lib/upload";
+import { apagarArquivo } from "@/lib/upload";
+import { caminhoValido } from "@/lib/slug";
 import type { Database } from "@/lib/tipos-banco";
 
 type RegistroArquivo = Database["public"]["Tables"]["arquivos"]["Insert"];
@@ -29,13 +29,17 @@ const esquema = z.object({
   exemplo: marcado,
   ordem: inteiro,
   ativo: marcado,
+  arquivo_path: textoOpcional,
+  arquivo_nome: textoOpcional,
+  arquivo_novo: textoOpcional,
 });
 
 export async function salvarArquivo(_: unknown, dados: FormData): Promise<Resultado> {
-  const enviado = dados.get("arquivo");
-
   return acao("arquivos", esquema, dados, async (v, supabase) => {
-    const novoArquivo = temArquivo(enviado);
+    const novoArquivo = v.arquivo_novo === "sim" && Boolean(v.arquivo_path);
+    if (novoArquivo && !caminhoValido(v.arquivo_path!)) {
+      throw new Error("Caminho de arquivo inválido.");
+    }
 
     if (!v.id && !novoArquivo && !v.url) {
       throw new Error("Envie o arquivo ou informe um link para ele.");
@@ -66,26 +70,11 @@ export async function salvarArquivo(_: unknown, dados: FormData): Promise<Result
     let caminhoAntigoParaApagar: string | null = null;
 
     if (novoArquivo) {
-      const arquivo = enviado as File;
-      const ext = extensaoDe(arquivo);
-
-      // Aqui está a promessa de "o link nunca muda": um arquivo que já existe
-      // mantém o MESMO caminho na substituição, mesmo que o título mude. Só
-      // troca de caminho se a extensão mudar — não dá para servir um .xlsx num
-      // endereço .pdf. Quem avisa o CDN que o conteúdo mudou é a versão.
-      const manterCaminho =
-        atual?.arquivo_path && atual.arquivo_path.endsWith(`.${ext}`) ? atual.arquivo_path : null;
-
-      const { data: categoria } = await supabase
-        .from("arquivo_categorias")
-        .select("nome")
-        .eq("id", v.categoria_id)
-        .maybeSingle();
-
-      const caminho =
-        manterCaminho ?? `${paraSlug(categoria?.nome ?? "arquivos")}/${paraSlug(v.titulo)}.${ext}`;
-
-      await subirArquivo(supabase, "arquivos", caminho, arquivo, LIMITE_ARQUIVO);
+      // A promessa de "o link nunca muda" é cumprida no navegador: ele reaproveita
+      // o caminho existente quando a extensão é a mesma. Aqui o servidor só
+      // registra o caminho e incrementa a versão, que é o que avisa o CDN de que
+      // o conteúdo daquele endereço mudou.
+      const caminho = v.arquivo_path!;
 
       if (atual?.arquivo_path && atual.arquivo_path !== caminho) {
         caminhoAntigoParaApagar = atual.arquivo_path;
@@ -95,8 +84,7 @@ export async function salvarArquivo(_: unknown, dados: FormData): Promise<Result
         ...base,
         origem: "upload",
         arquivo_path: caminho,
-        arquivo_nome: arquivo.name,
-        tamanho_bytes: arquivo.size,
+        arquivo_nome: v.arquivo_nome,
         url: null,
         versao: (atual?.versao ?? 0) + 1,
       };
@@ -156,6 +144,9 @@ const esquemaCategoria = z.object({
   descricao: textoOpcional,
   ordem: inteiro,
   ativo: marcado,
+  arquivo_path: textoOpcional,
+  arquivo_nome: textoOpcional,
+  arquivo_novo: textoOpcional,
 });
 
 export async function salvarCategoria(_: unknown, dados: FormData): Promise<Resultado> {

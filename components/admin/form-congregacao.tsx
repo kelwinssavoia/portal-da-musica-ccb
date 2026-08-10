@@ -1,6 +1,7 @@
 "use client";
 
-import { AreaTexto, Arquivo, Marcar, Selecao, Texto } from "@/components/admin/campos";
+import { AreaTexto, Marcar, Selecao, Texto } from "@/components/admin/campos";
+import { CampoUpload } from "@/components/admin/campo-upload";
 import { FormExcluir, FormRegistro } from "@/components/admin/form-registro";
 import {
   excluirCongregacao,
@@ -178,11 +179,15 @@ export function FormCongregacao({
       />
 
       {/* Sem campo de ordem: a lista do portal é alfabética. */}
-      <Arquivo
+      <CampoUpload
         nome="foto"
         rotulo="Foto da comum"
-        aceita="image/jpeg,image/png,image/webp"
-        ajuda="Até 5 MB. Subir uma nova substitui a atual."
+        bucket="congregacoes"
+        aceita="image/*"
+        limiteMb={5}
+        imagem
+        caminhoAtual={c?.foto_path}
+        ajuda="A foto é reduzida no seu aparelho antes de subir, então foto de celular serve."
       />
 
       <Marcar

@@ -1,6 +1,7 @@
 "use client";
 
-import { AreaTexto, Arquivo, Marcar, Texto } from "@/components/admin/campos";
+import { AreaTexto, Marcar, Texto } from "@/components/admin/campos";
+import { CampoUpload } from "@/components/admin/campo-upload";
 import { FormExcluir, FormRegistro } from "@/components/admin/form-registro";
 import { excluirCircular, salvarCircular } from "@/app/admin/(painel)/circulares/acoes";
 import type { Circular } from "@/lib/tipos-banco";
@@ -30,15 +31,15 @@ export function FormCircular({ circular: c }: { circular?: Circular }) {
       <Texto nome="titulo" rotulo="Título" obrigatorio valor={c?.titulo} />
       <AreaTexto nome="resumo" rotulo="Resumo" valor={c?.resumo} linhas={3} />
 
-      <Arquivo
+      <CampoUpload
         nome="arquivo"
         rotulo="PDF da circular"
+        bucket="circulares"
         aceita="application/pdf"
-        ajuda={
-          c?.origem === "upload"
-            ? `Já existe um PDF (${c.arquivo_nome ?? "arquivo"}). Enviar outro substitui, mantendo o mesmo endereço.`
-            : "Até 25 MB. O portal hospeda o arquivo — não precisa do Drive."
-        }
+        limiteMb={25}
+        caminhoAtual={c?.origem === "upload" ? c.arquivo_path : null}
+        nomeAtual={c?.arquivo_nome}
+        ajuda="Até 25 MB. O portal hospeda o arquivo — não precisa do Drive."
       />
 
       <Texto

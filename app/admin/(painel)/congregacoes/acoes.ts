@@ -12,7 +12,8 @@ import {
   textoOpcional,
   type Resultado,
 } from "@/lib/acoes";
-import { LIMITE_FOTO, apagarArquivo, caminhoDe, subirArquivo, temArquivo } from "@/lib/upload";
+import { apagarArquivo } from "@/lib/upload";
+import { caminhoValido } from "@/lib/slug";
 
 /**
  * Cultos vêm como um par de campos por dia da semana: `culto_dia_0` (checkbox) e
@@ -51,12 +52,14 @@ const esquema = z.object({
   ensaio_hora: horaOpcional,
   observacoes: textoOpcional,
   ativo: marcado,
+  // Caminho do arquivo que o navegador já subiu para o Storage.
+  foto_path: textoOpcional,
+  foto_novo: textoOpcional,
 });
 
 export async function salvarCongregacao(_: unknown, dados: FormData): Promise<Resultado> {
   const meses = mesesDoFormulario(dados);
   const cultos = cultosDoFormulario(dados);
-  const foto = dados.get("foto");
 
   return acao("congregacoes", esquema, dados, async (v, supabase) => {
     const slug = v.slug ? paraSlug(v.slug) : paraSlug(v.nome);
@@ -113,13 +116,13 @@ export async function salvarCongregacao(_: unknown, dados: FormData): Promise<Re
       if (erroCultos) throw erroCultos;
     }
 
-    if (temArquivo(foto)) {
-      const caminho = caminhoDe("comuns", slug, foto);
-      await subirArquivo(supabase, "congregacoes", caminho, foto, LIMITE_FOTO);
+    // A foto já está no Storage: aqui só se guarda o caminho dela.
+    if (v.foto_novo === "sim" && v.foto_path) {
+      if (!caminhoValido(v.foto_path)) throw new Error("Caminho de arquivo inválido.");
 
       const { error } = await supabase
         .from("congregacoes")
-        .update({ foto_path: caminho })
+        .update({ foto_path: v.foto_path })
         .eq("id", id);
       if (error) throw error;
     }

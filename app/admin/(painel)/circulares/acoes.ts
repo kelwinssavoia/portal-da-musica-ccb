@@ -6,12 +6,12 @@ import {
   acao,
   dataObrigatoria,
   marcado,
-  paraSlug,
   textoObrigatorio,
   textoOpcional,
   type Resultado,
 } from "@/lib/acoes";
-import { LIMITE_ARQUIVO, apagarArquivo, extensaoDe, subirArquivo, temArquivo } from "@/lib/upload";
+import { apagarArquivo } from "@/lib/upload";
+import { caminhoValido } from "@/lib/slug";
 
 const esquema = z.object({
   id: textoOpcional,
@@ -21,13 +21,17 @@ const esquema = z.object({
   data: dataObrigatoria,
   url: textoOpcional,
   publicado: marcado,
+  arquivo_path: textoOpcional,
+  arquivo_nome: textoOpcional,
+  arquivo_novo: textoOpcional,
 });
 
 export async function salvarCircular(_: unknown, dados: FormData): Promise<Resultado> {
-  const pdf = dados.get("arquivo");
-
   return acao("circulares", esquema, dados, async (v, supabase) => {
-    const enviouArquivo = temArquivo(pdf);
+    const enviouArquivo = v.arquivo_novo === "sim" && Boolean(v.arquivo_path);
+    if (enviouArquivo && !caminhoValido(v.arquivo_path!)) {
+      throw new Error("Caminho de arquivo inválido.");
+    }
 
     // Uma circular precisa de PDF ou de link — sem um dos dois não há o que abrir.
     if (!v.id && !enviouArquivo && !v.url) {
@@ -54,20 +58,13 @@ export async function salvarCircular(_: unknown, dados: FormData): Promise<Resul
       anterior = data?.arquivo_path ?? null;
     }
 
-    // Caminho pelo número da circular: estável entre versões.
-    const caminho = enviouArquivo
-      ? `${paraSlug(v.numero)}.${extensaoDe(pdf as File)}`
-      : null;
+    const caminho = enviouArquivo ? v.arquivo_path! : null;
 
     const registro = enviouArquivo
-      ? { ...base, origem: "upload" as const, arquivo_path: caminho, arquivo_nome: (pdf as File).name, url: null }
+      ? { ...base, origem: "upload" as const, arquivo_path: caminho, arquivo_nome: v.arquivo_nome, url: null }
       : v.url
         ? { ...base, origem: "link" as const, url: v.url, arquivo_path: null, arquivo_nome: null }
         : base;
-
-    if (enviouArquivo) {
-      await subirArquivo(supabase, "circulares", caminho!, pdf as File, LIMITE_ARQUIVO);
-    }
 
     if (id) {
       const { error } = await supabase.from("circulares").update(registro).eq("id", id);

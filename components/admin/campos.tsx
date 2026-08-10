@@ -151,26 +151,8 @@ export function Marcar({
   );
 }
 
-export function Arquivo({
-  nome,
-  rotulo,
-  ajuda,
-  aceita,
-  obrigatorio,
-}: Base & { aceita?: string }) {
-  return (
-    <Envolve rotulo={rotulo} ajuda={ajuda} obrigatorio={obrigatorio} htmlFor={nome}>
-      <input
-        id={nome}
-        name={nome}
-        type="file"
-        accept={aceita}
-        required={obrigatorio}
-        className="text-azul w-full text-[12.5px]"
-      />
-    </Envolve>
-  );
-}
+// O envio de arquivo tem componente próprio: components/admin/campo-upload.tsx,
+// porque o arquivo vai do navegador direto para o Storage.
 
 export function Botao({
   children,

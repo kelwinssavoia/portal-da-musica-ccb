@@ -160,12 +160,6 @@ export const inteiro = z
     return Number.isFinite(n) ? Math.trunc(n) : 0;
   });
 
-/** Identificador de URL: minúsculas, sem acento, com hífen. */
-export function paraSlug(texto: string): string {
-  return texto
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
+// `paraSlug` e `caminhoValido` moram em `lib/slug.ts`, porque o navegador
+// também precisa deles — ver components/admin/campo-upload.tsx.
+export { caminhoValido, paraSlug } from "@/lib/slug";

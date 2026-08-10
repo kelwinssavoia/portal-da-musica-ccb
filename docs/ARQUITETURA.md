@@ -363,7 +363,25 @@ cada versão nova virava um link novo no Drive.
 
 **Tipos aceitos:** PDF, imagem, e os formatos de planilha e documento
 (`xlsx`, `docx`). O CMS valida extensão e tamanho antes de enviar; fotos de
-congregação são redimensionadas no cliente.
+congregação são reduzidas para 1600px e convertidas em JPEG no próprio aparelho.
+
+### 4.4.1 O envio não passa pelo servidor
+
+O arquivo vai do **navegador direto para o Storage** (`components/admin/campo-upload.tsx`),
+e a Server Action recebe apenas o caminho resultante, como texto.
+
+Isso não é otimização, é requisito: **Server Action tem limite de 1 MB de corpo**
+e a Vercel corta requisição em **4,5 MB**. Uma foto de celular (3 a 8 MB) ou um
+PDF de circular de 25 MB derruba a função com erro de servidor — sem mensagem
+útil para quem está cadastrando.
+
+Quem garante que só gente autorizada sobe arquivo é a RLS do Storage, conferida
+com token de usuário: editor da área grava no bucket dela, editor de outra área
+recebe 403, e anônimo recebe 403.
+
+**Efeito colateral aceito:** o arquivo sobe ao ser escolhido, antes de salvar o
+registro. Quem escolher um arquivo e abandonar o formulário deixa um objeto órfão
+no bucket. É barato (poucos KB de PDF) e preferível a não conseguir subir nada.
 
 **Link externo continua existindo**, como exceção (`origem = 'link'`): serve
 para pasta compartilhada do Drive, formulário do Google e vídeo — coisas que não
