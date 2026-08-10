@@ -63,7 +63,7 @@ Mais **busca global** e **link direto para cada congregação**.
 | --- | --- |
 | Framework | Next.js (App Router, TypeScript, Server Components) |
 | Estilo | CSS global com as variáveis da identidade CCB + Tailwind para layout |
-| CMS UI | shadcn/ui (formulários, tabelas, diálogos) |
+| CMS UI | formulários HTML nativos + Server Actions (sem biblioteca de componentes) |
 | Banco / Auth / Storage | Supabase (Postgres + Auth + Storage) |
 | Cliente Supabase | `@supabase/supabase-js` + `@supabase/ssr` |
 | Validação | Zod (schemas compartilhados entre formulário e Server Action) |
@@ -643,7 +643,7 @@ portal-musica/
 │       ├── login/  congregacoes/  eventos/  circulares/
 │       ├── arquivos/  duvidas/  ajustes/  usuarios/
 │       └── layout.tsx     # menu filtrado pelas áreas do usuário
-├── components/            # ui/ (shadcn), site/, admin/, icones/
+├── components/            # site/, admin/, icones/
 ├── lib/
 │   ├── supabase/          # config, publico, servidor, navegador, admin
 │   ├── tipos-banco.ts     # tipos do schema (regenerar com a CLI)

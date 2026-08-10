@@ -69,8 +69,8 @@ Em construção, por fases (ver [§12 do documento de arquitetura](docs/ARQUITET
 - [x] **Fase 3** — Congregações, Secretaria e Início lendo do banco
 - [x] **Fase 4** — Ensaios e Calendário
 - [x] **Fase 5** — Circulares e busca global
-- [ ] **Fase 6** — CMS
-- [ ] **Fase 7** — usuários e permissões
+- [x] **Fase 6** — CMS
+- [x] **Fase 7** — usuários e permissões
 - [ ] **Fase 8** — importação do portal antigo e produção
 - [ ] **Fase 9** — guia de adoção
 
