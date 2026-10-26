@@ -13,6 +13,7 @@ export const AREAS_CMS: { area: PortalArea; nome: string; href: string }[] = [
   { area: "circulares", nome: "Circulares", href: "/admin/circulares" },
   { area: "arquivos", nome: "Arquivos", href: "/admin/arquivos" },
   { area: "duvidas", nome: "Dúvidas", href: "/admin/duvidas" },
+  { area: "rodizios", nome: "Rodízios", href: "/admin/rodizios" },
   { area: "ajustes", nome: "Ajustes", href: "/admin/ajustes" },
   { area: "usuarios", nome: "Usuários", href: "/admin/usuarios" },
 ];

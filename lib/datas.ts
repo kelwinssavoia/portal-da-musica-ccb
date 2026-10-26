@@ -130,3 +130,17 @@ export function cultosEmTexto(cultos: { dow: number; hora: string | null }[]): s
     })
     .join(", ");
 }
+
+/** `"2026-11-02"` → `"02/11"`. */
+export function dataNumerica(iso: string): string {
+  const [, mes, dia] = iso.split("-");
+  return `${dia}/${mes}`;
+}
+
+/** Período em texto: `"1 de novembro a 31 de dezembro de 2026"`. */
+export function periodoEmTexto(inicio: string, fim: string): string {
+  const [ai, mi, di] = inicio.split("-").map(Number);
+  const [af] = fim.split("-").map(Number);
+  const comeco = ai === af ? `${di} de ${MESES[mi - 1].toLowerCase()}` : dataLonga(inicio);
+  return `${comeco} a ${dataLonga(fim)}`;
+}

@@ -18,7 +18,8 @@ export type PortalArea =
   | "arquivos"
   | "duvidas"
   | "ajustes"
-  | "usuarios";
+  | "usuarios"
+  | "rodizios";
 
 export type TipoArquivo =
   | "pdf"
@@ -162,6 +163,57 @@ export type Ajuste = {
   descricao: string | null;
 };
 
+/** Organista de uma comum. Só existe no CMS — não há leitura pública. */
+export type Organista = {
+  id: string;
+  congregacao_id: string;
+  nome: string;
+  /** Dias da semana (0 = domingo) em que não pode tocar. Padrão dos próximos rodízios. */
+  dows_indisponiveis: number[];
+  ativo: boolean;
+  criado_em: string;
+};
+
+export type Rodizio = {
+  id: string;
+  congregacao_id: string;
+  inicio: string;
+  fim: string;
+  observacoes: string | null;
+  /** Compõe o link público `/rodizio/<token>`. */
+  token: string;
+  criado_em: string;
+  atualizado_em: string;
+};
+
+/** Participante de um rodízio, com as restrições usadas nele. */
+export type RodizioOrganista = {
+  rodizio_id: string;
+  organista_id: string;
+  dows_indisponiveis: number[];
+  datas_indisponiveis: string[];
+};
+
+/** Um culto do período e quem toca nele. */
+export type RodizioEscala = {
+  rodizio_id: string;
+  data: string;
+  hora: string | null;
+  organista_id: string | null;
+  /** Definida à mão antes de gerar; o sorteio não mexe. */
+  fixo: boolean;
+};
+
+/** O que `rodizio_publico(token)` devolve para o link das organistas. */
+export type RodizioPublico = {
+  inicio: string;
+  fim: string;
+  observacoes: string | null;
+  congregacao: { id: string; nome: string };
+  organistas: { id: string; nome: string }[];
+  escala: { data: string; hora: string | null; organista_id: string | null }[];
+};
+
 /** Campos que o banco preenche sozinho e não vão no insert. */
 type Gerados = "id" | "criado_em" | "atualizado_em";
 
@@ -192,11 +244,17 @@ export type Database = {
       arquivos: Tabela<Arquivo, "categoria_id" | "titulo">;
       duvidas: Tabela<Duvida, "pergunta" | "resposta">;
       ajustes: Tabela<Ajuste, "chave">;
+      organistas: Tabela<Organista, "congregacao_id" | "nome">;
+      rodizios: Tabela<Rodizio, "congregacao_id" | "inicio" | "fim">;
+      rodizio_organistas: Tabela<RodizioOrganista, "rodizio_id" | "organista_id">;
+      rodizio_escala: Tabela<RodizioEscala, "rodizio_id" | "data">;
     };
     Views: { [_ in never]: never };
     Functions: {
       is_admin: { Args: Record<string, never>; Returns: boolean };
       pode_editar: { Args: { a: PortalArea }; Returns: boolean };
+      salvar_rodizio: { Args: { dados: unknown }; Returns: string };
+      rodizio_publico: { Args: { p_token: string }; Returns: RodizioPublico | null };
     };
     Enums: {
       app_role: AppRole;

@@ -54,6 +54,11 @@ Mais **busca global** e **link direto para cada congregação**.
 > e-mails, nem listas de músicos. O portal guarda endereços de comuns, datas,
 > links de arquivos e textos institucionais. Isso é regra de projeto, não
 > sugestão — o portal é público na internet.
+>
+> **Exceção única: o rodízio de organistas (§5.6).** Ele guarda o nome das
+> organistas de cada comum, mas nada disso é público: as tabelas não têm
+> leitura anônima, e as irmãs veem a escala por um link com token aleatório,
+> `noindex`, fora de menu e de sitemap.
 
 ---
 
@@ -102,7 +107,8 @@ Todas as tabelas em `public`, com RLS **habilitada**. Migrações versionadas em
 ```sql
 create type app_role    as enum ('admin', 'editor');
 create type portal_area as enum ('congregacoes','eventos','circulares',
-                                 'arquivos','duvidas','ajustes','usuarios');
+                                 'arquivos','duvidas','ajustes','usuarios',
+                                 'rodizios');
 
 -- Espelha auth.users. Criado por trigger no primeiro login.
 create table public.perfis (
@@ -321,6 +327,7 @@ Mapa área → tabelas:
 | `arquivos` | `arquivos`, `arquivo_categorias` |
 | `duvidas` | `duvidas` |
 | `ajustes` | `ajustes` |
+| `rodizios` | `organistas`, `rodizios`, `rodizio_organistas`, `rodizio_escala` — **sem leitura pública** |
 | `usuarios` | `perfis`, `perfil_areas` — **somente `is_admin()`** |
 
 Detalhes importantes:
@@ -475,6 +482,42 @@ código.
 
 ---
 
+### 5.6 Rodízio de organistas
+
+Escala de quem toca o órgão em cada culto de uma comum, num período. Fica no
+CMS (`/admin/rodizios`, área `rodizios`).
+
+**Criação.** Escolhe-se a comum (os cultos vêm de `congregacao_cultos`), o
+período, quem participa e as restrições de cada organista — dias da semana em
+que não pode e datas específicas. Opcionalmente, fixa-se uma irmã numa data
+antes do sorteio. A escala é gerada no navegador (`lib/rodizio.ts`, funções
+puras e testadas) e pode ser ajustada à mão antes e depois de salvar.
+
+**Distribuição igualitária.** Todas tocam o mesmo número de vezes, ou no
+máximo uma a mais quando a conta não fecha. Datas fixadas contam no total. O
+gerador preenche primeiro os cultos mais restritos, equilibra com caminhos
+aumentantes (passa um culto de quem tem mais para quem tem menos, em cadeia, sem
+violar restrição) e depois troca datas entre irmãs para não pôr a mesma em
+cultos seguidos. Culto sem ninguém disponível fica vago e é sinalizado.
+
+**Restrições viram padrão.** Os dias da semana indisponíveis ficam gravados em
+`organistas.dows_indisponiveis` e voltam como sugestão no próximo rodízio da
+comum. Cada rodízio guarda a própria cópia em `rodizio_organistas`, junto das
+datas indisponíveis, que valem só para ele.
+
+**Gravação** por `salvar_rodizio(jsonb)`, `security invoker`: rodízio,
+participantes e escala numa transação só, sob a RLS de quem chama.
+
+**Saídas.**
+
+- *Versão impressa* (`/admin/rodizios/[id]/imprimir`): uma via por organista,
+  com a escala inteira e as datas dela em destaque, em grade com linha de
+  recorte. Abre a janela de impressão do navegador, que imprime ou salva PDF.
+- *Link público* (`/rodizio/<token>`): lido por `rodizio_publico(token)`,
+  `security definer`, que entrega só aquele rodízio. Ao abrir, a irmã escolhe o
+  próprio nome; a escolha fica no `localStorage` **por comum**, então o link do
+  mês seguinte já abre com ela em destaque.
+
 ## 6. Rotas
 
 ### 6.1 Portal público
@@ -489,6 +532,7 @@ código.
 | `/circulares` | Lista com destaque do mais recente |
 | `/secretaria` | Arquivos por categoria + dúvidas |
 | `/buscar?q=` | Resultados agrupados por área |
+| `/rodizio/[token]` | Rodízio de organistas de uma comum — só por link, `noindex` (§5.6) |
 
 O detalhe da congregação usa *parallel + intercepting routes*: clicar no card
 abre o modal sem sair da grade, mas a URL vira `/congregacoes/centro` — link
@@ -505,6 +549,7 @@ compartilhável, e recarregar a página mostra a versão completa.
 | `/admin/circulares` | `circulares` | idem |
 | `/admin/arquivos` | `arquivos` | idem |
 | `/admin/duvidas` | `duvidas` | idem |
+| `/admin/rodizios` | `rodizios` | idem |
 | `/admin/ajustes` | `ajustes` | idem |
 | `/admin/usuarios` | `usuarios` | **somente admin** |
 

@@ -19,6 +19,7 @@ const TAGS: Record<PortalArea, string[]> = {
   duvidas: ["duvidas"],
   ajustes: ["ajustes"],
   usuarios: [],
+  rodizios: ["rodizios"],
 };
 
 /**
@@ -72,8 +73,16 @@ export async function acao<Esquema extends z.ZodType>(
   }
 }
 
+/**
+ * Erro com mensagem já escrita para quem usa o CMS ("esta cidade tem 3 comuns
+ * ligadas"). Vai para a tela como está, sem passar pela tradução abaixo.
+ */
+export class ErroDeUso extends Error {}
+
 /** Traduz os erros do Postgres que o usuário do CMS pode causar. */
 function mensagemDeErro(e: unknown): string {
+  if (e instanceof ErroDeUso) return e.message;
+
   const bruto = e instanceof Error ? e.message : String(e);
 
   if (/duplicate key|already exists|unique/i.test(bruto)) {

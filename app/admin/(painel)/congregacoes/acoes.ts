@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import {
   acao,
+  ErroDeUso,
   horaOpcional,
   marcado,
   numeroOpcional,
@@ -63,11 +64,11 @@ export async function salvarCongregacao(_: unknown, dados: FormData): Promise<Re
 
   return acao("congregacoes", esquema, dados, async (v, supabase) => {
     const slug = v.slug ? paraSlug(v.slug) : paraSlug(v.nome);
-    if (slug === "") throw new Error("Não foi possível gerar o endereço da página pelo nome.");
+    if (slug === "") throw new ErroDeUso("Não foi possível gerar o endereço da página pelo nome.");
 
     // Ensaio só existe com ordinal E dia da semana; um sem o outro não gera data.
     if ((v.ensaio_ord === null) !== (v.ensaio_dow === null)) {
-      throw new Error(
+      throw new ErroDeUso(
         "Para o ensaio local, preencha o ordinal e o dia da semana juntos — ou deixe os dois em branco.",
       );
     }
@@ -206,7 +207,7 @@ export async function excluirCidade(_: unknown, dados: FormData): Promise<Result
       .eq("cidade_id", v.id);
 
     if ((count ?? 0) > 0) {
-      throw new Error(
+      throw new ErroDeUso(
         `Esta cidade tem ${count} comum(ns) ligada(s) a ela. Mude a cidade dessas comuns antes de excluí-la.`,
       );
     }

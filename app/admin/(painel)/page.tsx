@@ -8,6 +8,7 @@ const DESCRICAO: Record<string, string> = {
   "/admin/circulares": "Publicar comunicados da regional.",
   "/admin/arquivos": "Fichas e calendários da secretaria, por categoria.",
   "/admin/duvidas": "Perguntas frequentes do portal.",
+  "/admin/rodizios": "Rodízio de organistas por comum: gerar, ajustar, imprimir e enviar o link.",
   "/admin/ajustes": "Textos institucionais e opções gerais.",
   "/admin/usuarios": "Convidar irmãos e definir o que cada um pode editar.",
 };
@@ -50,7 +51,8 @@ export default async function Painel({ searchParams }: PageProps<"/admin">) {
         <p className="mt-1">
           O portal é público na internet e aparece no Google. Não cadastre nome de irmão, telefone,
           e-mail ou lista de músicos e organistas — nem em descrição, nem em observação, nem em
-          resposta de dúvida.
+          resposta de dúvida. A única exceção é o Rodízio de organistas: os nomes ficam só no
+          painel e no link enviado a elas, fora do portal e dos buscadores.
         </p>
       </div>
     </div>

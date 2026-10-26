@@ -18,7 +18,7 @@ export default async function PainelLayout({ children }: LayoutProps<"/admin">) 
 
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="bg-azul-escuro text-white">
+      <header className="bg-azul-escuro text-white print:hidden">
         <div className="mx-auto flex w-full max-w-[1040px] flex-wrap items-center justify-between gap-3 px-4 py-3">
           <div>
             <Link href="/admin" className="text-[15px] font-bold text-white no-underline">
@@ -47,9 +47,13 @@ export default async function PainelLayout({ children }: LayoutProps<"/admin">) 
         </div>
       </header>
 
-      <MenuAdmin areas={areas} />
+      <div className="print:hidden">
+        <MenuAdmin areas={areas} />
+      </div>
 
-      <main className="mx-auto w-full max-w-[1040px] flex-1 px-4 py-7">{children}</main>
+      <main className="mx-auto w-full max-w-[1040px] flex-1 px-4 py-7 print:max-w-none print:p-0">
+        {children}
+      </main>
     </div>
   );
 }
