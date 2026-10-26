@@ -69,10 +69,11 @@ export function RodizioPublico({ rodizio }: { rodizio: Dados }) {
 
   const minhas = minha ? rodizio.escala.filter((e) => e.organista_id === minha) : [];
   const proxima = minhas.find((e) => e.data >= hoje);
+  const deHoje = hoje !== "" ? minhas.find((e) => e.data === hoje) : undefined;
   const perguntar = pronto && !minha && !soVer && rodizio.organistas.length > 0;
 
   return (
-    <div className="mx-auto flex max-w-[640px] flex-col gap-5">
+    <div className="flex flex-col gap-5">
       <div>
         <p className="text-[12px] font-bold tracking-wide uppercase">Rodízio de organistas</p>
         <h1 className="text-xl">{rodizio.congregacao.nome}</h1>
@@ -105,6 +106,25 @@ export function RodizioPublico({ rodizio }: { rodizio: Dados }) {
           >
             Só quero ver a escala
           </button>
+        </section>
+      )}
+
+      {minha && deHoje && (
+        <section
+          role="status"
+          className="bg-verde rounded-portal shadow-portal p-5 text-center text-white"
+        >
+          <p className="text-[22px] leading-tight font-bold">Hoje é seu dia!</p>
+          <p className="mt-1 text-[14px]">
+            {nomes.get(minha)}, você toca no culto de hoje
+            {deHoje.hora && (
+              <>
+                {" "}
+                às <strong>{formatarHora(deHoje.hora)}</strong>
+              </>
+            )}
+            .
+          </p>
         </section>
       )}
 
@@ -179,12 +199,17 @@ export function RodizioPublico({ rodizio }: { rodizio: Dados }) {
               {linhas.map((e) => {
                 const dela = minha !== null && e.organista_id === minha;
                 const passou = hoje !== "" && e.data < hoje;
+                const ehHoje = e.data === hoje;
                 return (
                   <li
                     key={e.data}
                     aria-current={dela ? "true" : undefined}
                     className={`border-cinza flex items-center gap-3 border-b px-4 py-2.5 text-[13px] last:border-b-0 ${
-                      dela ? "bg-azul/10 border-l-azul border-l-4 pl-3" : ""
+                      dela && ehHoje
+                        ? "bg-verde/15 border-l-verde border-l-4 pl-3"
+                        : dela
+                          ? "bg-azul/10 border-l-azul border-l-4 pl-3"
+                          : ""
                     } ${passou ? "opacity-50" : ""}`}
                   >
                     <span className="w-[86px] shrink-0">
@@ -195,9 +220,13 @@ export function RodizioPublico({ rodizio }: { rodizio: Dados }) {
                     <span className={`flex-1 ${dela ? "text-azul font-bold" : ""}`}>
                       {e.organista_id ? (nomes.get(e.organista_id) ?? "—") : "—"}
                     </span>
-                    {e.data === hoje && (
-                      <span className="bg-vermelho rounded px-1.5 py-0.5 text-[11px] font-bold text-white">
-                        Hoje
+                    {ehHoje && (
+                      <span
+                        className={`rounded px-1.5 py-0.5 text-[11px] font-bold whitespace-nowrap text-white ${
+                          dela ? "bg-verde" : "bg-vermelho"
+                        }`}
+                      >
+                        {dela ? "Hoje é seu dia" : "Hoje"}
                       </span>
                     )}
                   </li>
