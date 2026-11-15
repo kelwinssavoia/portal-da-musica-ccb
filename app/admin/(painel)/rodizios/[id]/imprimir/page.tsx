@@ -12,15 +12,17 @@ import { clienteServidor } from "@/lib/supabase/servidor";
 export const metadata = { title: "Imprimir rodízio" };
 
 /**
- * Quantas vias cabem numa folha A4 depende do tamanho da escala. Cada folha tem
- * altura fixa e as vias ocupam células iguais, então nenhuma via é cortada entre
- * páginas e as linhas de recorte ficam alinhadas.
+ * A impressão sai em A4 paisagem, com o mesmo desenho da tela: cada via tem a
+ * largura de meia folha, então os nomes cabem numa linha só. Quantas vias cabem
+ * numa folha depende do tamanho da escala. Cada folha tem altura fixa e as vias
+ * ocupam células iguais, então nenhuma via é cortada entre páginas e as linhas
+ * de recorte ficam alinhadas.
  *  - até LINHAS_QUARTO datas: 4 vias por folha (2 × 2);
- *  - até LINHAS_MEIA: 2 vias por folha, a lista em duas colunas;
+ *  - até LINHAS_MEIA: 2 vias por folha, lado a lado, na altura toda;
  *  - acima disso: 1 via por folha, a lista em duas colunas.
  */
-const LINHAS_QUARTO = 14;
-const LINHAS_MEIA = 28;
+const LINHAS_QUARTO = 11;
+const LINHAS_MEIA = 27;
 
 function emGrupos<T>(itens: T[], tamanho: number): T[][] {
   const grupos: T[][] = [];
@@ -47,12 +49,12 @@ export default async function ImprimirRodizio({
   const periodo = periodoEmTexto(rodizio.inicio, rodizio.fim);
   const linhas = rodizio.escala.length;
   const porFolha = linhas <= LINHAS_QUARTO ? 4 : linhas <= LINHAS_MEIA ? 2 : 1;
-  const larga = porFolha < 4;
+  const larga = porFolha === 1;
   const grade =
     porFolha === 4
       ? "grid-cols-2 grid-rows-2"
       : porFolha === 2
-        ? "grid-cols-1 grid-rows-2"
+        ? "grid-cols-2 grid-rows-1"
         : "grid-cols-1 grid-rows-1";
   const folhas = emGrupos(organistas, porFolha);
 
@@ -60,7 +62,7 @@ export default async function ImprimirRodizio({
     <div>
       {/* Margem zero na página tira o cabeçalho e o rodapé do navegador (título,
           URL, "Page 1 of 2"); a margem de verdade fica no padding de cada folha. */}
-      <style>{`@page { size: A4; margin: 0; }`}</style>
+      <style>{`@page { size: A4 landscape; margin: 0; }`}</style>
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3 print:hidden">
         <div>
@@ -79,7 +81,7 @@ export default async function ImprimirRodizio({
         {folhas.map((folha, i) => (
           <div
             key={i}
-            className={`grid gap-0 ${grade} print:h-[296mm] print:w-[210mm] print:overflow-hidden print:p-[8mm] print:break-after-page print:last:break-after-auto`}
+            className={`grid gap-0 ${grade} print:h-[209mm] print:w-[297mm] print:overflow-hidden print:p-[8mm] print:break-after-page print:last:break-after-auto`}
           >
             {folha.map((o) => {
               const minhas = rodizio.escala.filter((e) => e.organista_id === o.id);
@@ -93,7 +95,7 @@ export default async function ImprimirRodizio({
                     {comum} · {periodo}
                   </p>
 
-                  <p className="mt-2 border-y-2 border-black py-1 text-center text-[15px] leading-tight font-bold">
+                  <p className="mt-2 border-y-2 border-black py-1 text-center text-[17px] font-bold">
                     {o.nome}
                   </p>
                   <p className="mt-1.5">
@@ -103,9 +105,7 @@ export default async function ImprimirRodizio({
                     {minhas.map((e) => dataNumerica(e.data)).join(", ") || "—"}
                   </p>
 
-                  <ul
-                    className={`mt-2 text-[10px] leading-tight ${larga ? "columns-2 gap-4" : ""}`}
-                  >
+                  <ul className={`mt-2 ${larga ? "columns-2 gap-4" : ""}`}>
                     {rodizio.escala.map((e) => {
                       const dela = e.organista_id === o.id;
                       return (
